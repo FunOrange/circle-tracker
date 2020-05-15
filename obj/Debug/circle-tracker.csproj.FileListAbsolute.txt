@@ -14,3 +14,5 @@ C:\Users\funor\circle-tracker\obj\Debug\circle-tracker.csproj.CopyComplete
 C:\Users\funor\circle-tracker\obj\Debug\circle-tracker.exe
 C:\Users\funor\circle-tracker\obj\Debug\circle-tracker.pdb
 C:\Users\funor\circle-tracker\obj\Debug\circle_tracker.MainForm.resources
+C:\Users\funor\circle-tracker\bin\Debug\Newtonsoft.Json.dll
+C:\Users\funor\circle-tracker\bin\Debug\Newtonsoft.Json.xml
