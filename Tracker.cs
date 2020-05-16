@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
+using Newtonsoft.Json.Linq;
 using OsuMemoryDataProvider;
 using System;
 using System.Collections.Generic;
@@ -24,22 +27,25 @@ namespace circle_tracker
         private MainForm form;
         private string songsFolder;
         public string SongsFolder { get => songsFolder; private set => songsFolder = value; }
+        public bool SheetsApiReady { get; set; } = false;
 
         // game variables
-        private int beatmapID = 0;
-        private string beatmapSong = "";
-        private string beatmapArtist = "";
-        private string beatmapDiff = "";
-        private int hits = 0;
-        private int cachedSongTime = 0;
+        public int BeatmapID { get; set; }
+        public int BeatmapSetID { get; set; }
+        public string BeatmapString { get; set; }
         public string BeatmapPath { get; set; }
         public decimal BeatmapStars { get; private set; }
         public decimal BeatmapAim { get; private set; }
         public decimal BeatmapSpeed { get; private set; }
-
-        public int Hits { get => hits; set => hits = value; }
-        public int Time { get => cachedSongTime; set => cachedSongTime = value; }
+        public int TotalBeatmapHits { get; set; } = 0;
+        private int cachedHits = 0;
+        public int Time { get; set; } = 0;
         public OsuMemoryStatus GameState { get => cachedGameState; set => cachedGameState = value; }
+
+        // Google Sheets API
+        public string SpreadsheetId { get; set; } = "1cIBABHakKLLFHj0JqcLtsAL17FR5dC841Dow3lvzK-M";
+        public string SheetName = "Raw Data";
+        SheetsService GoogleSheetsService;
 
         public Tracker(MainForm f)
         {
@@ -79,7 +85,7 @@ namespace circle_tracker
         public void OnClosing()
         {
             exiting = true;
-            thread?.Join();
+            thread?.Abort();
             Console.WriteLine("closing");
         }
 
@@ -90,9 +96,19 @@ namespace circle_tracker
 
                 // beatmap
                 string beatmapFilename = osuReader.GetOsuFileName();
-                if (beatmapFilename != "" || beatmapFilename != Path.GetFileName(BeatmapPath))
+                if (beatmapFilename != "" && beatmapFilename != Path.GetFileName(BeatmapPath))
                 {
-                    BeatmapPath = Path.Combine(SongsFolder, osuReader.GetMapFolderName(), osuReader.GetOsuFileName());
+                    try
+                    {
+                        BeatmapPath = Path.Combine(SongsFolder, osuReader.GetMapFolderName(), osuReader.GetOsuFileName());
+                    }
+                    catch
+                    {
+                        return; 
+                    }
+                    BeatmapString = osuReader.GetSongString();
+                    BeatmapSetID = (int)osuReader.GetMapSetId();
+                    BeatmapID = osuReader.GetMapId();
 
                     // oppai
                     (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath);
@@ -108,13 +124,14 @@ namespace circle_tracker
                 {
                     if (cachedGameState == OsuMemoryStatus.Playing && newGameState != OsuMemoryStatus.Playing) // beatmap quit
                     {
-                        Console.WriteLine($"beatmap exit; Hits {Hits}");
+                        Console.WriteLine("Beatmap Quit Detected: state transitioned from " + cachedGameState.ToString() + " to " + newGameState.ToString());
+                        PostBeatmapEntryToGoogleSheets();
                         // reset game variables
-                        Hits = 0;
-                        cachedSongTime = 0;
+                        TotalBeatmapHits = 0;
+                        Time = 0;
                     }
-                    form.Invoke(new MethodInvoker(form.UpdateControls));
                     cachedGameState = newGameState;
+                    form.Invoke(new MethodInvoker(form.UpdateControls));
                 }
 
                 // read game data
@@ -130,14 +147,16 @@ namespace circle_tracker
                         int newSongTime = osuReader.ReadPlayTime();
 
                         // detect retry
-                        if (newSongTime < cachedSongTime && cachedSongTime > 0)
+                        if (newSongTime < Time && Time > 0)
                         {
-                            Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {cachedSongTime} Hits {Hits}");
+                            Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
                         }
 
                         // update cached data
-                        Hits = newHits;
-                        cachedSongTime = newSongTime;
+                        if (newHits > cachedHits && newHits - cachedHits < 5)
+                            TotalBeatmapHits += newHits - cachedHits;
+                        cachedHits = newHits;
+                        Time = newSongTime;
 
                         form.Invoke(new MethodInvoker(form.UpdateControls));
 
@@ -190,5 +209,59 @@ namespace circle_tracker
             decimal speedStars = oppaiData.GetValue("speed_stars").ToObject<decimal>();
             return (stars, aimStars, speedStars);
         }
+
+        public void InitGoogleAPI()
+        {
+            string[] Scopes = { SheetsService.Scope.Spreadsheets };
+            string ApplicationName = "Circle Tracker";
+            GoogleCredential credential;
+            using (var stream = new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
+            {
+                credential = GoogleCredential.FromStream(stream)
+                    .CreateScoped(Scopes);
+            }
+            GoogleSheetsService = new SheetsService(new Google.Apis.Services.BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName
+            });
+
+            // just do an empty write to check if we can successfully write data
+            var range = $"'{SheetName}'!Y:Z";
+            var valueRange = new ValueRange();
+            var writeData = new List<object>() { "", "" };
+            valueRange.Values = new List<IList<object>> { writeData };
+            var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
+            appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+            var appendResponse = appendRequest.Execute();
+
+            SetSheetsApiReady(true);
+        }
+        private void PostBeatmapEntryToGoogleSheets()
+        {
+            if (!SheetsApiReady)
+            {
+                Console.WriteLine("PostBeatmapEntryToGoogleSheets: Google Sheets API has not yet been setup.");
+                return;
+            }
+            if (TotalBeatmapHits == 0) return;
+
+            string dateTimeFormat = "g";
+            string beatmapCell = $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{BeatmapString}\")";
+
+            var range = $"'{SheetName}'!A:G";
+            var valueRange = new ValueRange();
+            var writeData = new List<object>() { DateTime.Now.ToString(dateTimeFormat), beatmapCell, 0, BeatmapStars, BeatmapAim, BeatmapSpeed, TotalBeatmapHits };
+            valueRange.Values = new List<IList<object>> { writeData };
+            var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
+            appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+            var appendResponse = appendRequest.Execute();
+        }
+        void SetSheetsApiReady(bool val)
+        {
+            SheetsApiReady = val;
+            form.SetSheetsApiReady(val);
+        }
+
     }
 }
