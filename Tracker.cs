@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Formats;
 using osu.Game.IO;
+using osu.Game.Overlays.Mods;
 using OsuMemoryDataProvider;
 using System;
 using System.Collections.Generic;
@@ -181,7 +182,7 @@ namespace Circle_Tracker
             BeatmapID = osuReader.GetMapId();
 
             // oppai
-            (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath);
+            (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
 
             return true;
         }
@@ -243,6 +244,7 @@ namespace Circle_Tracker
                         Hidden     = (mods & 0b00001000) != 0 ? true : false;
                         Hardrock   = (mods & 0b00010000) != 0 ? true : false;
                         Doubletime = (mods & 0b01000000) != 0 ? true : false;
+                        (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
 
                         form.Invoke(new MethodInvoker(form.UpdateControls));
                     }
@@ -251,17 +253,27 @@ namespace Circle_Tracker
             }
         }
 
-        private (decimal, decimal, decimal) oppai(string beatmapPath)
+        public string GetModsString()
+        {
+            string mods = "";
+            if (Hidden) mods += "HD";
+            if (Hardrock) mods += "HR";
+            if (Doubletime) mods += "DT";
+            return mods;
+        }
+
+        private (decimal, decimal, decimal) oppai(string beatmapPath, string mods)
         {
             if (!File.Exists(beatmapPath))
                 return (0, 0, 0);
-            
+
+            if (mods != "") mods = $" +{mods}";
             Process oppai = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "oppai.exe",
-                    Arguments = $"\"{beatmapPath}\" -ojson",
+                    Arguments = $"\"{beatmapPath}\" {mods} -ojson",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true,
@@ -316,7 +328,7 @@ namespace Circle_Tracker
             }
             if (SheetName == "")
             {
-                if (silent)
+                if (!silent)
                     MessageBox.Show("Please enter a sheet name.");
                 SetSheetsApiReady(false);
                 return;
@@ -373,11 +385,23 @@ namespace Circle_Tracker
             if (TotalBeatmapHits < 10) return;
 
             string dateTimeFormat = "g";
-            string beatmapCell = $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{BeatmapString}\")";
+            string mods = GetModsString();
+            if (mods != "") mods = $" +{mods}";
 
             var range = $"'{SheetName}'!A:J";
             var valueRange = new ValueRange();
-            var writeData = new List<object>() { DateTime.Now.ToString(dateTimeFormat), beatmapCell, Hidden ? "1":"", Hardrock ? "1":"", Doubletime ? "1":"", BeatmapBpm, BeatmapStars, BeatmapAim, BeatmapSpeed, TotalBeatmapHits };
+            var writeData = new List<object>() {
+                /*A: Date & Time*/ DateTime.Now.ToString(dateTimeFormat),
+                /*B: Beatmap    */ $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{BeatmapString + mods}\")",
+                /*C: Hidden     */ Hidden ? "1":"",
+                /*D: Hardrock   */ Hardrock ? "1":"",
+                /*E: Doubletime */ Doubletime ? "1":"",
+                /*F: BPM        */ Doubletime ? (1.5M * BeatmapBpm) : BeatmapBpm,
+                /*G: Stars      */ BeatmapStars,
+                /*H: Aim        */ BeatmapAim,
+                /*I: Speed      */ BeatmapSpeed,
+                /*J: Hits       */ TotalBeatmapHits
+            };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;

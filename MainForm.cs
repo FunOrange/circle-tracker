@@ -46,6 +46,7 @@ namespace Circle_Tracker
             starsTextBox.Text = tracker.BeatmapStars.ToString("0.00");
             aimTextBox.Text = tracker.BeatmapAim.ToString("0.00");
             speedTextBox.Text = tracker.BeatmapSpeed.ToString("0.00");
+            modsTextBox.Text = tracker.GetModsString();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -79,6 +80,9 @@ namespace Circle_Tracker
             tracker.SheetName = sheetNameTextBox.Text;
         }
 
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
 
+        }
     }
 }

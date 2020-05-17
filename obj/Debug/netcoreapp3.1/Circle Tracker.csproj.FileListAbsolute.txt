@@ -496,3 +496,5 @@ C:\Users\funor\circle-tracker\obj\Debug\netcoreapp3.1\Circle Tracker.csproj.Copy
 C:\Users\funor\circle-tracker\obj\Debug\netcoreapp3.1\Circle Tracker.dll
 C:\Users\funor\circle-tracker\obj\Debug\netcoreapp3.1\Circle Tracker.pdb
 C:\Users\funor\circle-tracker\obj\Debug\netcoreapp3.1\Circle Tracker.genruntimeconfig.cache
+C:\Users\funor\circle-tracker\obj\Debug\netcoreapp3.1\Circle_Tracker.MainForm.resources
+C:\Users\funor\circle-tracker\obj\Debug\netcoreapp3.1\Circle Tracker.csproj.GenerateResource.cache
