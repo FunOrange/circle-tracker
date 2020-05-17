@@ -1,9 +1,4 @@
-﻿using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using Google.Apis.Util.Store;
-using OsuMemoryDataProvider;
+﻿using OsuMemoryDataProvider;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,11 +7,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace circle_tracker
+namespace Circle_Tracker
 {
     public partial class MainForm : Form
     {
@@ -28,6 +22,19 @@ namespace circle_tracker
             songsFolderTextBox.Text = tracker.SongsFolder;
             sheetNameTextBox.Text = tracker.SheetName;
             spreadsheetIdTextBox.Text = tracker.SpreadsheetId;
+            tracker.InitGoogleAPI(silent:true);
+            SetCredentialsFound(File.Exists("credentials.json"));
+        }
+
+        public void SetCredentialsFound(bool found)
+        {
+            credentialsLabel.Text      = found ? "Found" : "Missing";
+            credentialsLabel.ForeColor = found ? Color.Green : Color.Red;
+        }
+
+        private void OnLoad(object sender, EventArgs e)
+        {
+            tracker.StartUpdateThread();
         }
 
         public void UpdateControls()
@@ -35,7 +42,7 @@ namespace circle_tracker
             BackColor = (tracker.SheetsApiReady && tracker.GameState == OsuMemoryStatus.Playing) ? SystemColors.Info : SystemColors.Control;
             hitsTextBox.Text = tracker.TotalBeatmapHits.ToString();
             timeTextBox.Text = tracker.Time.ToString();
-            beatmapTextBox.Text = tracker.BeatmapPath;
+            beatmapTextBox.Text = tracker.BeatmapString;
             starsTextBox.Text = tracker.BeatmapStars.ToString("0.00");
             aimTextBox.Text = tracker.BeatmapAim.ToString("0.00");
             speedTextBox.Text = tracker.BeatmapSpeed.ToString("0.00");
@@ -71,5 +78,7 @@ namespace circle_tracker
         {
             tracker.SheetName = sheetNameTextBox.Text;
         }
+
+
     }
 }

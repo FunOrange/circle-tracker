@@ -1,4 +1,0 @@
-C:\Users\funor\circle-tracker\obj\Release\circle-tracker.csprojAssemblyReference.cache
-C:\Users\funor\circle-tracker\obj\Release\circle_tracker.Properties.Resources.resources
-C:\Users\funor\circle-tracker\obj\Release\circle-tracker.csproj.GenerateResource.cache
-C:\Users\funor\circle-tracker\obj\Release\circle-tracker.csproj.CoreCompileInputs.cache

@@ -1,14 +1,14 @@
-﻿namespace circle_tracker
+﻿namespace Circle_Tracker
 {
     partial class MainForm
     {
         /// <summary>
-        /// Required designer variable.
+        ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// Clean up any resources being used.
+        ///  Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
@@ -53,6 +53,8 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label8 = new System.Windows.Forms.Label();
+            this.credentialsLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -108,7 +110,7 @@
             this.songsFolderTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.songsFolderTextBox.Location = new System.Drawing.Point(76, 6);
             this.songsFolderTextBox.Name = "songsFolderTextBox";
-            this.songsFolderTextBox.Size = new System.Drawing.Size(569, 20);
+            this.songsFolderTextBox.Size = new System.Drawing.Size(419, 20);
             this.songsFolderTextBox.TabIndex = 1;
             this.songsFolderTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -128,7 +130,7 @@
             this.beatmapTextBox.Location = new System.Drawing.Point(76, 31);
             this.beatmapTextBox.Name = "beatmapTextBox";
             this.beatmapTextBox.ReadOnly = true;
-            this.beatmapTextBox.Size = new System.Drawing.Size(569, 20);
+            this.beatmapTextBox.Size = new System.Drawing.Size(419, 20);
             this.beatmapTextBox.TabIndex = 1;
             this.beatmapTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -195,6 +197,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.credentialsLabel);
+            this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.statusLabel);
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label7);
@@ -233,9 +237,9 @@
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(6, 90);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(239, 13);
+            this.label7.Size = new System.Drawing.Size(66, 13);
             this.label7.TabIndex = 4;
-            this.label7.Text = "Sheet Name (eg. which \"tab\" in the spreadsheet)";
+            this.label7.Text = "Sheet Name";
             // 
             // label5
             // 
@@ -287,7 +291,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(651, 56);
+            this.panel1.Size = new System.Drawing.Size(501, 56);
             this.panel1.TabIndex = 5;
             // 
             // tableLayoutPanel1
@@ -306,21 +310,41 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(651, 56);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(501, 56);
             this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(162, 25);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(83, 13);
+            this.label8.TabIndex = 5;
+            this.label8.Text = "credentials.json:";
+            // 
+            // credentialsLabel
+            // 
+            this.credentialsLabel.AutoSize = true;
+            this.credentialsLabel.ForeColor = System.Drawing.Color.Red;
+            this.credentialsLabel.Location = new System.Drawing.Point(245, 25);
+            this.credentialsLabel.Name = "credentialsLabel";
+            this.credentialsLabel.Size = new System.Drawing.Size(42, 13);
+            this.credentialsLabel.TabIndex = 6;
+            this.credentialsLabel.Text = "Missing";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(651, 289);
+            this.ClientSize = new System.Drawing.Size(501, 289);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Text = "Circle Tracker";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Load += new System.EventHandler(this.OnLoad);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -359,6 +383,8 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label credentialsLabel;
+        private System.Windows.Forms.Label label8;
     }
 }
 

@@ -1,6 +1,0 @@
-[submodule "submodules/ProcessMemoryDataFinder"]
-	path = submodules/ProcessMemoryDataFinder
-	url = https://github.com/Piotrekol/ProcessMemoryDataFinder.git
-[submodule "submodules/osu"]
-	path = submodules/osu
-	url = https://github.com/ppy/osu.git

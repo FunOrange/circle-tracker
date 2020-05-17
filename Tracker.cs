@@ -1,7 +1,11 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using Google;
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Newtonsoft.Json.Linq;
+using osu.Game.Beatmaps;
+using osu.Game.Beatmaps.Formats;
+using osu.Game.IO;
 using OsuMemoryDataProvider;
 using System;
 using System.Collections.Generic;
@@ -10,11 +14,13 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Decoder = osu.Game.Beatmaps.Formats.Decoder;
 
-namespace circle_tracker
+namespace Circle_Tracker
 {
     class Tracker
     {
@@ -22,38 +28,97 @@ namespace circle_tracker
         private Thread thread;
         private int updateInterval = 33;
         private bool exiting;
-        private bool osuRunning;
-        private OsuMemoryStatus cachedGameState;
         private MainForm form;
-        private string songsFolder;
-        public string SongsFolder { get => songsFolder; private set => songsFolder = value; }
-        public bool SheetsApiReady { get; set; } = false;
 
-        // game variables
+        // Beatmap
+        private string songsFolder;
+        public string SongsFolder {
+            get => songsFolder;
+            set
+            {
+                songsFolder = value;
+                SaveSettings();
+            }
+        }
+        private LegacyBeatmapDecoder beatmapDecoder;
+        private Beatmap beatmap;
+        public string BeatmapPath { get; set; }
         public int BeatmapID { get; set; }
         public int BeatmapSetID { get; set; }
         public string BeatmapString { get; set; }
-        public string BeatmapPath { get; set; }
+        public int BeatmapBpm { get; set; }
+
+        // game variables
+        public OsuMemoryStatus GameState { get; set; }
+        public bool Hidden { get; set; } = false;
+        public bool Hardrock { get; set; } = false;
+        public bool Doubletime { get; set; } = false;
+
         public decimal BeatmapStars { get; private set; }
         public decimal BeatmapAim { get; private set; }
         public decimal BeatmapSpeed { get; private set; }
+        int cachedHits = 0;
         public int TotalBeatmapHits { get; set; } = 0;
-        private int cachedHits = 0;
         public int Time { get; set; } = 0;
-        public OsuMemoryStatus GameState { get => cachedGameState; set => cachedGameState = value; }
 
         // Google Sheets API
-        public string SpreadsheetId { get; set; } = "1cIBABHakKLLFHj0JqcLtsAL17FR5dC841Dow3lvzK-M";
-        public string SheetName = "Raw Data";
+        public bool SheetsApiReady { get; set; } = false;
+        private string spreadsheetId;
+        public string SpreadsheetId {
+            get => spreadsheetId;
+            set
+            {
+                spreadsheetId = value;
+                SaveSettings();
+            }
+        }
+        private string sheetName;
+        public string SheetName
+        {
+            get => sheetName;
+            set
+            {
+                sheetName = value;
+                SaveSettings();
+            }
+        }
         SheetsService GoogleSheetsService;
 
         public Tracker(MainForm f)
         {
             form = f;
-            songsFolder = Properties.Settings.Default.SongsFolder;
+            LoadSettings();
             osuReader = OsuMemoryReader.Instance.GetInstanceForWindowTitleHint("");
             int _;
-            cachedGameState = osuReader.GetCurrentStatus(out _);
+            GameState = osuReader.GetCurrentStatus(out _);
+
+        }
+
+        private void SaveSettings()
+        {
+            string[] lines = { SongsFolder, SpreadsheetId, SheetName };
+            File.WriteAllLines("user_settings.txt", lines, Encoding.UTF8);
+        }
+        private void LoadSettings()
+        {
+            if (!File.Exists("user_settings.txt"))
+            {
+                SongsFolder = "";
+                SpreadsheetId = "";
+                SheetName = "";
+            }
+            else
+            {
+                var lines = File.ReadAllLines("user_settings.txt");
+                SongsFolder = lines[0];
+                SpreadsheetId = lines[1];
+                SheetName = lines[2];
+            }
+
+        }
+
+        public void StartUpdateThread()
+        {
             exiting = false;
             thread = new Thread(TickLoop);
             thread.Start();
@@ -77,18 +142,49 @@ namespace circle_tracker
 
         internal void SetSongsFolder(string folder)
         {
-            songsFolder = folder;
-            Properties.Settings.Default.SongsFolder = folder;
-            Properties.Settings.Default.Save();
+            SongsFolder = folder;
         }
 
         public void OnClosing()
         {
             exiting = true;
-            thread?.Abort();
-            Console.WriteLine("closing");
+            thread?.Join();
         }
 
+        public bool TrySwitchBeatmap()
+        {
+            try
+            {
+                BeatmapPath = Path.Combine(SongsFolder, osuReader.GetMapFolderName(), osuReader.GetOsuFileName());
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (!File.Exists(BeatmapPath))
+                return false;
+
+            string versionLine = File.ReadLines(BeatmapPath).First();
+            Match m = Regex.Match(versionLine, @"osu file format v(\d+)");
+            if (!m.Success)
+                return false;
+            int version = int.Parse(m.Groups[1].ToString());
+
+            using (var stream = new LineBufferedReader(File.OpenRead(BeatmapPath)))
+                beatmap = Decoder.GetDecoder<Beatmap>(stream).Decode(stream);
+
+            BeatmapBpm = (int)Math.Round(beatmap.ControlPointInfo.BPMMode);
+            
+            BeatmapString = osuReader.GetSongString();
+            BeatmapSetID = (int)osuReader.GetMapSetId();
+            BeatmapID = osuReader.GetMapId();
+
+            // oppai
+            (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath);
+
+            return true;
+        }
         public void TickLoop()
         {
             while (!exiting)
@@ -98,39 +194,25 @@ namespace circle_tracker
                 string beatmapFilename = osuReader.GetOsuFileName();
                 if (beatmapFilename != "" && beatmapFilename != Path.GetFileName(BeatmapPath))
                 {
-                    try
-                    {
-                        BeatmapPath = Path.Combine(SongsFolder, osuReader.GetMapFolderName(), osuReader.GetOsuFileName());
-                    }
-                    catch
-                    {
-                        return; 
-                    }
-                    BeatmapString = osuReader.GetSongString();
-                    BeatmapSetID = (int)osuReader.GetMapSetId();
-                    BeatmapID = osuReader.GetMapId();
-
-                    // oppai
-                    (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath);
-
-                    form.Invoke(new MethodInvoker(form.UpdateControls));
+                    if (TrySwitchBeatmap())
+                        form.Invoke(new MethodInvoker(form.UpdateControls));
                 }
 
                 // gameplay stuff
                 int _;
                 OsuMemoryStatus newGameState = osuReader.GetCurrentStatus(out _);
 
-                if (newGameState != cachedGameState) // state transition
+                if (newGameState != GameState) // state transition
                 {
-                    if (cachedGameState == OsuMemoryStatus.Playing && newGameState != OsuMemoryStatus.Playing) // beatmap quit
+                    if (GameState == OsuMemoryStatus.Playing && newGameState != OsuMemoryStatus.Playing) // beatmap quit
                     {
-                        Console.WriteLine("Beatmap Quit Detected: state transitioned from " + cachedGameState.ToString() + " to " + newGameState.ToString());
+                        Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
                         PostBeatmapEntryToGoogleSheets();
                         // reset game variables
                         TotalBeatmapHits = 0;
                         Time = 0;
                     }
-                    cachedGameState = newGameState;
+                    GameState = newGameState;
                     form.Invoke(new MethodInvoker(form.UpdateControls));
                 }
 
@@ -157,11 +239,15 @@ namespace circle_tracker
                             TotalBeatmapHits += newHits - cachedHits;
                         cachedHits = newHits;
                         Time = newSongTime;
+                        var mods = osuReader.GetMods();
+                        Hidden     = (mods & 0b00001000) != 0 ? true : false;
+                        Hardrock   = (mods & 0b00010000) != 0 ? true : false;
+                        Doubletime = (mods & 0b01000000) != 0 ? true : false;
 
                         form.Invoke(new MethodInvoker(form.UpdateControls));
-
                     }
                 }
+                Thread.Sleep(updateInterval);
             }
         }
 
@@ -210,8 +296,31 @@ namespace circle_tracker
             return (stars, aimStars, speedStars);
         }
 
-        public void InitGoogleAPI()
+        public void InitGoogleAPI(bool silent = false)
         {
+            bool credentialsFound = File.Exists("credentials.json");
+            form.SetCredentialsFound(credentialsFound);
+            if (!credentialsFound)
+            {
+                if (!silent)
+                    MessageBox.Show("credentials.json not found.");
+                SetSheetsApiReady(false);
+                return;
+            }
+            if (SpreadsheetId == "")
+            {
+                if (!silent)
+                    MessageBox.Show("Please enter a spreadsheet ID.");
+                SetSheetsApiReady(false);
+                return;
+            }
+            if (SheetName == "")
+            {
+                if (silent)
+                    MessageBox.Show("Please enter a sheet name.");
+                SetSheetsApiReady(false);
+                return;
+            }
             string[] Scopes = { SheetsService.Scope.Spreadsheets };
             string ApplicationName = "Circle Tracker";
             GoogleCredential credential;
@@ -233,7 +342,24 @@ namespace circle_tracker
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
-            var appendResponse = appendRequest.Execute();
+            try
+            {
+                var appendResponse = appendRequest.Execute();
+            }
+            catch (GoogleApiException e)
+            {
+                if (!silent)
+                {
+                    MessageBox.Show(e.Message, "Google Sheets API Error");
+                    if (e.Message.Contains("Unable to parse range"))
+                    {
+                        MessageBox.Show("Try checking if you entered the correct thing for sheet name. Sheet name refers to the name of a 'tab' in the spreadsheet, not the name of the entire spreadsheet");
+                    }
+
+                }
+                SetSheetsApiReady(false);
+                return;
+            }
 
             SetSheetsApiReady(true);
         }
@@ -244,14 +370,14 @@ namespace circle_tracker
                 Console.WriteLine("PostBeatmapEntryToGoogleSheets: Google Sheets API has not yet been setup.");
                 return;
             }
-            if (TotalBeatmapHits == 0) return;
+            if (TotalBeatmapHits < 10) return;
 
             string dateTimeFormat = "g";
             string beatmapCell = $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{BeatmapString}\")";
 
-            var range = $"'{SheetName}'!A:G";
+            var range = $"'{SheetName}'!A:J";
             var valueRange = new ValueRange();
-            var writeData = new List<object>() { DateTime.Now.ToString(dateTimeFormat), beatmapCell, 0, BeatmapStars, BeatmapAim, BeatmapSpeed, TotalBeatmapHits };
+            var writeData = new List<object>() { DateTime.Now.ToString(dateTimeFormat), beatmapCell, Hidden ? "1":"", Hardrock ? "1":"", Doubletime ? "1":"", BeatmapBpm, BeatmapStars, BeatmapAim, BeatmapSpeed, TotalBeatmapHits };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
