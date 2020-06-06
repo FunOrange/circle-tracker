@@ -27,7 +27,7 @@ namespace Circle_Tracker
     {
         private readonly IOsuMemoryReader osuReader;
         private Thread thread;
-        private int updateInterval = 33;
+        private int updateInterval = 500;
         private bool exiting;
         private MainForm form;
 
@@ -149,6 +149,8 @@ namespace Circle_Tracker
         public void OnClosing()
         {
             exiting = true;
+            // TODO: thread.Join() gets stuck here.
+            // Solution: Use mutex to wait for when thread execution is not inside form.Invoke()
             thread?.Join();
         }
 
