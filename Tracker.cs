@@ -27,7 +27,7 @@ namespace Circle_Tracker
     {
         private readonly IOsuMemoryReader osuReader;
         private Thread thread;
-        private int updateInterval = 500;
+        private int updateInterval = 100;
         private bool exiting;
         private MainForm form;
 
@@ -386,7 +386,7 @@ namespace Circle_Tracker
             }
             if (TotalBeatmapHits < 10) return;
 
-            string dateTimeFormat = "g";
+            string dateTimeFormat = "yyyy'-'MM'-'dd h':'mm tt";
             string mods = GetModsString();
             if (mods != "") mods = $" +{mods}";
 
