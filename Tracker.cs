@@ -374,6 +374,15 @@ namespace Circle_Tracker
                 SetSheetsApiReady(false);
                 return;
             }
+            catch (Exception e)
+            {
+                if (!silent)
+                {
+                    MessageBox.Show(e.Message, "Error");
+                }
+                SetSheetsApiReady(false);
+                return;
+            }
 
             SetSheetsApiReady(true);
         }
@@ -387,6 +396,7 @@ namespace Circle_Tracker
             if (TotalBeatmapHits < 10) return;
 
             string dateTimeFormat = "yyyy'-'MM'-'dd h':'mm tt";
+            string escapedName = BeatmapString.Replace("\"", "\"\"");
             string mods = GetModsString();
             if (mods != "") mods = $" +{mods}";
 
@@ -394,7 +404,7 @@ namespace Circle_Tracker
             var valueRange = new ValueRange();
             var writeData = new List<object>() {
                 /*A: Date & Time*/ DateTime.Now.ToString(dateTimeFormat),
-                /*B: Beatmap    */ $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{BeatmapString + mods}\")",
+                /*B: Beatmap    */ $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{escapedName + mods}\")",
                 /*C: Hidden     */ Hidden ? "1":"",
                 /*D: Hardrock   */ Hardrock ? "1":"",
                 /*E: Doubletime */ Doubletime ? "1":"",
