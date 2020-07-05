@@ -45,6 +45,7 @@
             this.ConnectApiButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.credentialsLabel = new System.Windows.Forms.Label();
+            this.soundEnabledCheckbox = new System.Windows.Forms.CheckBox();
             this.label8 = new System.Windows.Forms.Label();
             this.statusLabel = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -201,7 +202,7 @@
             // 
             // ConnectApiButton
             // 
-            this.ConnectApiButton.Location = new System.Drawing.Point(7, 162);
+            this.ConnectApiButton.Location = new System.Drawing.Point(7, 190);
             this.ConnectApiButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.ConnectApiButton.Name = "ConnectApiButton";
             this.ConnectApiButton.Size = new System.Drawing.Size(331, 53);
@@ -213,6 +214,7 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.credentialsLabel);
+            this.groupBox1.Controls.Add(this.soundEnabledCheckbox);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.statusLabel);
             this.groupBox1.Controls.Add(this.label6);
@@ -225,7 +227,7 @@
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.groupBox1.Size = new System.Drawing.Size(346, 222);
+            this.groupBox1.Size = new System.Drawing.Size(346, 249);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Google Sheets Integration";
@@ -240,6 +242,17 @@
             this.credentialsLabel.Size = new System.Drawing.Size(48, 15);
             this.credentialsLabel.TabIndex = 6;
             this.credentialsLabel.Text = "Missing";
+            // 
+            // soundEnabledCheckbox
+            // 
+            this.soundEnabledCheckbox.AutoSize = true;
+            this.soundEnabledCheckbox.Location = new System.Drawing.Point(7, 159);
+            this.soundEnabledCheckbox.Name = "soundEnabledCheckbox";
+            this.soundEnabledCheckbox.Size = new System.Drawing.Size(220, 19);
+            this.soundEnabledCheckbox.TabIndex = 6;
+            this.soundEnabledCheckbox.Text = "Play sound when writing a new entry";
+            this.soundEnabledCheckbox.UseVisualStyleBackColor = true;
+            this.soundEnabledCheckbox.CheckedChanged += new System.EventHandler(this.soundEnabledCheckbox_CheckedChanged);
             // 
             // label8
             // 
@@ -332,7 +345,6 @@
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Beatmap Info";
-            this.groupBox2.Enter += new System.EventHandler(this.groupBox2_Enter);
             // 
             // modsTextBox
             // 
@@ -439,6 +451,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox modsTextBox;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.CheckBox soundEnabledCheckbox;
     }
 }
 

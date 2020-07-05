@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -48,6 +49,10 @@ namespace Circle_Tracker
         public int BeatmapSetID { get; set; }
         public string BeatmapString { get; set; }
         public int BeatmapBpm { get; set; }
+
+        // Sound
+        private string soundFilename = "sectionpass.wav";
+        public bool SubmitSoundEnabled { get; set; }
 
         // game variables
         public OsuMemoryStatus GameState { get; set; }
@@ -92,12 +97,11 @@ namespace Circle_Tracker
             osuReader = OsuMemoryReader.Instance.GetInstanceForWindowTitleHint("");
             int _;
             GameState = osuReader.GetCurrentStatus(out _);
-
         }
 
         private void SaveSettings()
         {
-            string[] lines = { SongsFolder, SpreadsheetId, SheetName };
+            string[] lines = { SongsFolder, SpreadsheetId, SheetName, SubmitSoundEnabled ? "1" : "0"};
             File.WriteAllLines("user_settings.txt", lines, Encoding.UTF8);
         }
         private void LoadSettings()
@@ -106,16 +110,19 @@ namespace Circle_Tracker
             {
                 SongsFolder = "";
                 SpreadsheetId = "";
-                SheetName = "";
+                SheetName = "Raw Data";
+                SubmitSoundEnabled = false;
             }
             else
             {
                 var lines = File.ReadAllLines("user_settings.txt");
-                SongsFolder = lines[0];
-                SpreadsheetId = lines[1];
-                SheetName = lines[2];
+                if (lines.Length == 4) {
+                    SongsFolder = lines[0];
+                    SpreadsheetId = lines[1];
+                    SheetName = lines[2];
+                    SubmitSoundEnabled = lines[3] == "1";
+                }
             }
-
         }
 
         public void StartUpdateThread()
@@ -369,7 +376,6 @@ namespace Circle_Tracker
                     {
                         MessageBox.Show("Try checking if you entered the correct thing for sheet name. Sheet name refers to the name of a 'tab' in the spreadsheet, not the name of the entire spreadsheet");
                     }
-
                 }
                 SetSheetsApiReady(false);
                 return;
@@ -418,6 +424,14 @@ namespace Circle_Tracker
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
             var appendResponse = appendRequest.Execute();
+            bool success = (appendResponse.Updates.UpdatedRows == 1);
+            if (success && SubmitSoundEnabled)
+            {
+                using (SoundPlayer player = new SoundPlayer(@"sectionpass.wav"))
+                {
+                    player.Play();
+                }
+            }
         }
         void SetSheetsApiReady(bool val)
         {

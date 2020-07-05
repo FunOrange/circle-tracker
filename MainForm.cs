@@ -19,9 +19,12 @@ namespace Circle_Tracker
         {
             InitializeComponent();
             tracker = new Tracker(this);
+
             songsFolderTextBox.Text = tracker.SongsFolder;
             sheetNameTextBox.Text = tracker.SheetName;
             spreadsheetIdTextBox.Text = tracker.SpreadsheetId;
+            soundEnabledCheckbox.Checked = tracker.SubmitSoundEnabled;
+
             tracker.InitGoogleAPI(silent:true);
             SetCredentialsFound(File.Exists("credentials.json"));
         }
@@ -80,9 +83,9 @@ namespace Circle_Tracker
             tracker.SheetName = sheetNameTextBox.Text;
         }
 
-        private void groupBox2_Enter(object sender, EventArgs e)
+        private void soundEnabledCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-
+            tracker.SubmitSoundEnabled = soundEnabledCheckbox.Checked;
         }
     }
 }
