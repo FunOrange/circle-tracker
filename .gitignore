@@ -1,5 +1,6 @@
 *.suo
 *.user
-bin
-obj
-.vs
+bin/
+obj/
+Releases/
+.vs/

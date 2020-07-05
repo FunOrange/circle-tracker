@@ -18,6 +18,7 @@ namespace Circle_Tracker
         public MainForm()
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.iconbars;
             tracker = new Tracker(this);
 
             songsFolderTextBox.Text = tracker.SongsFolder;
