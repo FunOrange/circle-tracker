@@ -6,6 +6,7 @@
     <RootNamespace>Circle_Tracker</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>icons8_signal_80_NTe_icon.ico</ApplicationIcon>
+    <StartupObject></StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="submodules\osu\osu.Game\osu.Game.csproj" />
+    <ProjectReference Include="FsBeatmapParser\FsBeatmapProcessor.fsproj" />
+    <ProjectReference Include="submodules\FsBeatmapParser\FsBeatmapProcessor.fsproj" />
     <ProjectReference Include="submodules\ProcessMemoryDataFinder\OsuMemoryDataProvider\OsuMemoryDataProvider.csproj" />
   </ItemGroup>
 

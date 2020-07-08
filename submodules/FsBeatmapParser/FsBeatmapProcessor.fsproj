@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net46</TargetFramework>
+    <AssemblyName>FsBeatmapProcessor</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="JunUtils.fs" />
+
+    <Compile Include="General.fs" />
+    <Compile Include="Editor.fs" />
+    <Compile Include="Metadata.fs" />
+    <Compile Include="Difficulty.fs" />
+    <Compile Include="Events.fs" />
+    <Compile Include="TimingPoints.fs" />
+    <Compile Include="Colours.fs" />
+    <Compile Include="HitObjects.fs" />
+
+    <Compile Include="BeatmapProcessor.fs" />
+    <Compile Include="Program.fs" />
+    <Compile Include="FsBeatmap.fs" />
+  </ItemGroup>
+
+</Project>

@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Circle Tracker", "Circle Tracker.csproj", "{C72CE5E3-DD71-4F5E-942D-F3FEB97DBDC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Circle Tracker", "Circle Tracker.csproj", "{C72CE5E3-DD71-4F5E-942D-F3FEB97DBDC8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OsuMemoryDataProvider", "submodules\ProcessMemoryDataFinder\OsuMemoryDataProvider\OsuMemoryDataProvider.csproj", "{D1A4E0A7-ADDE-4746-B754-0474919E6FE7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessMemoryDataFinder", "submodules\ProcessMemoryDataFinder\ProcessMemoryDataFinder\ProcessMemoryDataFinder.csproj", "{91DEFEFF-EFAC-49DD-BB98-15F762683847}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "osu.Game", "submodules\osu\osu.Game\osu.Game.csproj", "{4BCD42F9-69E4-4AF9-8029-4DEC0B81BA01}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FsBeatmapProcessor", "submodules\FsBeatmapParser\FsBeatmapProcessor.fsproj", "{FA9584FD-5BC6-4F47-9D70-32A15BCA7917}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{91DEFEFF-EFAC-49DD-BB98-15F762683847}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91DEFEFF-EFAC-49DD-BB98-15F762683847}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91DEFEFF-EFAC-49DD-BB98-15F762683847}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4BCD42F9-69E4-4AF9-8029-4DEC0B81BA01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4BCD42F9-69E4-4AF9-8029-4DEC0B81BA01}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4BCD42F9-69E4-4AF9-8029-4DEC0B81BA01}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4BCD42F9-69E4-4AF9-8029-4DEC0B81BA01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA9584FD-5BC6-4F47-9D70-32A15BCA7917}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA9584FD-5BC6-4F47-9D70-32A15BCA7917}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA9584FD-5BC6-4F47-9D70-32A15BCA7917}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA9584FD-5BC6-4F47-9D70-32A15BCA7917}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

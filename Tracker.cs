@@ -1,12 +1,9 @@
-﻿using Google;
+﻿using FsBeatmapProcessor;
+using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Newtonsoft.Json.Linq;
-using osu.Game.Beatmaps;
-using osu.Game.Beatmaps.Formats;
-using osu.Game.IO;
-using osu.Game.Overlays.Mods;
 using OsuMemoryDataProvider;
 using System;
 using System.Collections.Generic;
@@ -20,7 +17,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Decoder = osu.Game.Beatmaps.Formats.Decoder;
 
 namespace Circle_Tracker
 {
@@ -42,7 +38,6 @@ namespace Circle_Tracker
                 SaveSettings();
             }
         }
-        private LegacyBeatmapDecoder beatmapDecoder;
         private Beatmap beatmap;
         public string BeatmapPath { get; set; }
         public int BeatmapID { get; set; }
@@ -111,7 +106,7 @@ namespace Circle_Tracker
                 SongsFolder = "";
                 SpreadsheetId = "";
                 SheetName = "Raw Data";
-                SubmitSoundEnabled = false;
+                SubmitSoundEnabled = true;
             }
             else
             {
@@ -121,6 +116,13 @@ namespace Circle_Tracker
                     SpreadsheetId = lines[1];
                     SheetName = lines[2];
                     SubmitSoundEnabled = lines[3] == "1";
+                }
+                else
+                {
+                    SongsFolder = "";
+                    SpreadsheetId = "";
+                    SheetName = "Raw Data";
+                    SubmitSoundEnabled = true;
                 }
             }
         }
@@ -160,7 +162,13 @@ namespace Circle_Tracker
             // Solution: Use mutex to wait for when thread execution is not inside form.Invoke()
             thread?.Join();
         }
-
+        private Beatmap BeatmapConstructorWrapper(string beatmapFilename)
+        {
+            Beatmap newBeatmap = new Beatmap(beatmapFilename);
+            if (newBeatmap.ApproachRate == -1M)
+                newBeatmap.ApproachRate = newBeatmap.OverallDifficulty;　// i can't believe this is how old maps used to work...
+            return newBeatmap;
+        }
         public bool TrySwitchBeatmap()
         {
             try
@@ -181,14 +189,11 @@ namespace Circle_Tracker
                 return false;
             int version = int.Parse(m.Groups[1].ToString());
 
-            using (var stream = new LineBufferedReader(File.OpenRead(BeatmapPath)))
-                beatmap = Decoder.GetDecoder<Beatmap>(stream).Decode(stream);
-
-            BeatmapBpm = (int)Math.Round(beatmap.ControlPointInfo.BPMMode);
-            
+            beatmap       = BeatmapConstructorWrapper(BeatmapPath);
+            BeatmapBpm    = (int)Math.Round(beatmap.Bpm);
             BeatmapString = osuReader.GetSongString();
-            BeatmapSetID = (int)osuReader.GetMapSetId();
-            BeatmapID = osuReader.GetMapId();
+            BeatmapSetID  = (int)osuReader.GetMapSetId();
+            BeatmapID     = osuReader.GetMapId();
 
             // oppai
             (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
