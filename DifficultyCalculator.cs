@@ -1,6 +1,7 @@
 ﻿using Google.Apis.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Circle_Tracker
@@ -99,17 +100,30 @@ namespace Circle_Tracker
             if (input < 0M || input > 10M)
                 return 0M;
 
-            int lowerIndex = (int)input;
-            int upperIndex = Math.Min(lowerIndex + 1, 10); // clamp to 10
+            var values = lut.Select(indexValuePair => indexValuePair.Item2);
+            decimal maxValue   = values.Max();
+
+            int lowerIndex     = (int)input;
+            int upperIndex     = Math.Min(lowerIndex + 1, 10); // clamp to 10
 
             decimal lowerValue = lut[lowerIndex].Item2;
             decimal upperValue = lut[upperIndex].Item2;
             decimal stepDifference = upperValue - lowerValue;
             decimal stepFraction = input - (int)input; // decimal part
-            Console.WriteLine($"stepFraction: {stepFraction}");
 
-
-            return lowerValue + stepFraction * stepDifference;
+            if (lowerValue != maxValue && upperValue == maxValue)
+            {
+                // special case: piece-wise linear interval. Starts with a positive slope, then plateaus to max value.
+                // Linearly interpolate based on the slope of the previous interval
+                decimal prevIntervalLowerValue = lut[lowerIndex - 1].Item2;
+                decimal prevIntervalUpperValue = lut[lowerIndex].Item2;
+                decimal previousSlope = prevIntervalUpperValue - prevIntervalLowerValue;
+                // Clamp the lerped value to maxValue
+                decimal lerp = upperValue + stepFraction * previousSlope;
+                return Math.Min(lerp, maxValue);
+            }
+            else
+                return lowerValue + stepFraction * stepDifference;
         }
     }
 }
