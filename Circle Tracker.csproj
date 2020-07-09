@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="FsBeatmapParser\FsBeatmapProcessor.fsproj" />
     <ProjectReference Include="submodules\FsBeatmapParser\FsBeatmapProcessor.fsproj" />
     <ProjectReference Include="submodules\ProcessMemoryDataFinder\OsuMemoryDataProvider\OsuMemoryDataProvider.csproj" />
   </ItemGroup>
