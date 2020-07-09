@@ -96,18 +96,20 @@ namespace Circle_Tracker
         public static decimal CalculateODWithDTHR(decimal od) => LerpValueUsingLUT(od, OverallDifficultyTableDTHR);
 
         private static decimal LerpValueUsingLUT(decimal input, List<(decimal, decimal)> lut) {
-           if (input < 0M || input > 10M)
-              throw new ArgumentOutOfRangeException();
+            if (input < 0M || input > 10M)
+                return 0M;
 
-           int lowerIndex = (int)input;
-           int upperIndex = Math.Min(lowerIndex + 1, 10); // clamp to 10
+            int lowerIndex = (int)input;
+            int upperIndex = Math.Min(lowerIndex + 1, 10); // clamp to 10
 
-           decimal lowerValue = lut[lowerIndex].Item2;
-           decimal upperValue = lut[upperIndex].Item2;
-           decimal stepDifference = upperValue - lowerValue;
-           decimal stepFraction = input - (int)input; // decimal part
+            decimal lowerValue = lut[lowerIndex].Item2;
+            decimal upperValue = lut[upperIndex].Item2;
+            decimal stepDifference = upperValue - lowerValue;
+            decimal stepFraction = input - (int)input; // decimal part
+            Console.WriteLine($"stepFraction: {stepFraction}");
 
-           return lowerValue + stepFraction * stepDifference;
+
+            return lowerValue + stepFraction * stepDifference;
         }
     }
 }
