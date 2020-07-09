@@ -58,6 +58,9 @@ namespace Circle_Tracker
         public decimal BeatmapStars { get; private set; }
         public decimal BeatmapAim { get; private set; }
         public decimal BeatmapSpeed { get; private set; }
+        public decimal BeatmapCs { get; private set; }
+        public decimal BeatmapAr { get; private set; }
+        public decimal BeatmapOd { get; private set; }
         int cachedHits = 0;
         public int TotalBeatmapHits { get; set; } = 0;
         public int Time { get; set; } = 0;
@@ -260,6 +263,33 @@ namespace Circle_Tracker
                         Doubletime = (mods & 0b01000000) != 0 ? true : false;
                         (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
 
+                        // CS AR OD
+                        // FIXME: no support for HalfTime
+                        if (Doubletime && Hardrock)
+                        {
+                            BeatmapCs = beatmap.CircleSize * 1.3M;
+                            BeatmapAr = DifficultyCalculator.CalculateARWithDTHR( beatmap.ApproachRate );
+                            BeatmapOd = DifficultyCalculator.CalculateODWithDTHR( beatmap.OverallDifficulty );
+                        }
+                        else if (Doubletime)
+                        {
+                            BeatmapCs = beatmap.CircleSize;
+                            BeatmapAr = DifficultyCalculator.CalculateARWithDT( beatmap.ApproachRate );
+                            BeatmapOd = DifficultyCalculator.CalculateODWithDT( beatmap.OverallDifficulty );
+                        }
+                        else if (Hardrock)
+                        {
+                            BeatmapCs = beatmap.CircleSize * 1.3M;
+                            BeatmapAr = DifficultyCalculator.CalculateARWithHR( beatmap.ApproachRate );
+                            BeatmapOd = DifficultyCalculator.CalculateODWithHR( beatmap.OverallDifficulty );
+                        }
+                        else // NoMod
+                        {
+                            BeatmapCs = beatmap.CircleSize;
+                            BeatmapAr = beatmap.ApproachRate;
+                            BeatmapOd = beatmap.OverallDifficulty;
+                        }
+
                         form.Invoke(new MethodInvoker(form.UpdateControls));
                     }
                 }
@@ -420,10 +450,13 @@ namespace Circle_Tracker
                 /*D: Hardrock   */ Hardrock ? "1":"",
                 /*E: Doubletime */ Doubletime ? "1":"",
                 /*F: BPM        */ Doubletime ? (1.5M * BeatmapBpm) : BeatmapBpm,
-                /*G: Stars      */ BeatmapStars,
-                /*H: Aim        */ BeatmapAim,
-                /*I: Speed      */ BeatmapSpeed,
-                /*J: Hits       */ TotalBeatmapHits
+                /*G: Aim        */ BeatmapAim,
+                /*H: Speed      */ BeatmapSpeed,
+                /*I: Stars      */ BeatmapStars,
+                /*J: CS         */ BeatmapCs,
+                /*K: AR         */ BeatmapAr,
+                /*L: OD         */ BeatmapOd,
+                /*M: Hits       */ TotalBeatmapHits
             };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
