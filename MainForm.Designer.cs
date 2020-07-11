@@ -352,7 +352,7 @@
             this.modsTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.modsTextBox.Name = "modsTextBox";
             this.modsTextBox.ReadOnly = true;
-            this.modsTextBox.Size = new System.Drawing.Size(60, 23);
+            this.modsTextBox.Size = new System.Drawing.Size(100, 23);
             this.modsTextBox.TabIndex = 1;
             // 
             // label9

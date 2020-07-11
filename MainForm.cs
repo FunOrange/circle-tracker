@@ -43,14 +43,14 @@ namespace Circle_Tracker
 
         public void UpdateControls()
         {
-            BackColor = (tracker.SheetsApiReady && tracker.GameState == OsuMemoryStatus.Playing) ? SystemColors.Info : SystemColors.Control;
-            hitsTextBox.Text = tracker.TotalBeatmapHits.ToString();
-            timeTextBox.Text = tracker.Time.ToString();
+            BackColor           = (tracker.SheetsApiReady && tracker.GameState == OsuMemoryStatus.Playing) ? SystemColors.Info : SystemColors.Control;
+            hitsTextBox.Text    = tracker.TotalBeatmapHits.ToString();
+            timeTextBox.Text    = tracker.Time.ToString();
             beatmapTextBox.Text = tracker.BeatmapString;
-            starsTextBox.Text = tracker.BeatmapStars.ToString("0.00");
-            aimTextBox.Text = tracker.BeatmapAim.ToString("0.00");
-            speedTextBox.Text = tracker.BeatmapSpeed.ToString("0.00");
-            modsTextBox.Text = tracker.GetModsString();
+            starsTextBox.Text   = tracker.BeatmapStars.ToString("0.00");
+            aimTextBox.Text     = tracker.BeatmapAim.ToString("0.00");
+            speedTextBox.Text   = tracker.BeatmapSpeed.ToString("0.00");
+            modsTextBox.Text    = tracker.GetModsString();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
