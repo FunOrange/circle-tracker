@@ -237,7 +237,7 @@ namespace Circle_Tracker
                 }
 
                 // update mods
-                if (newGameState == OsuMemoryStatus.SongSelect)
+                if (newGameState == OsuMemoryStatus.SongSelect && beatmap != null)
                 {
                     RawMods = osuReader.GetMods();
                     if (RawMods != -1) // invalid
@@ -289,17 +289,26 @@ namespace Circle_Tracker
                         int newHits = playData.C300 + playData.C100 + playData.C50;
                         int newSongTime = osuReader.ReadPlayTime();
 
+                        // update hits
+                        if (newHits > cachedHits && newHits - cachedHits < 5)
+                            TotalBeatmapHits += newHits - cachedHits;
+                        cachedHits = newHits;
+
                         // detect retry
                         if (newSongTime < Time && Time > 0)
                         {
                             Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
+                            PostBeatmapEntryToGoogleSheets();
+                            // reset game variables
+                            TotalBeatmapHits = 0;
+                            Time = 0;
+                        }
+                        else
+                        {
+                            // update time
+                            Time = newSongTime;
                         }
 
-                        // update hits + time
-                        if (newHits > cachedHits && newHits - cachedHits < 5)
-                            TotalBeatmapHits += newHits - cachedHits;
-                        cachedHits = newHits;
-                        Time = newSongTime;
 
                         form.Invoke(new MethodInvoker(form.UpdateControls));
                     }
