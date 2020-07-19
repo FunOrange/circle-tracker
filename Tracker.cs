@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Media;
@@ -466,7 +467,7 @@ namespace Circle_Tracker
             var range = $"'{SheetName}'!A:J";
             var valueRange = new ValueRange();
             var writeData = new List<object>() {
-                /*A: Date & Time*/ DateTime.Now.ToString(dateTimeFormat),
+                /*A: Date & Time*/ DateTime.Now.ToString(dateTimeFormat, CultureInfo.InvariantCulture),
                 /*B: Beatmap    */ $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{escapedName + mods}\")",
                 /*C: Hidden     */ Hidden ? "1":"",
                 /*D: Hardrock   */ Hardrock ? "1":"",
