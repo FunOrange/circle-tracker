@@ -19,6 +19,16 @@ namespace Circle_Tracker
         {
             InitializeComponent();
             this.Icon = Properties.Resources.iconbars;
+
+            try
+            {
+                Updater.CheckForUpdates();
+            }
+            catch (Exception e)
+            {
+                // exception we probably don't care about
+            }
+
             tracker = new Tracker(this);
 
             songsFolderTextBox.Text = tracker.SongsFolder;
