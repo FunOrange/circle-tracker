@@ -155,7 +155,7 @@ namespace Circle_Tracker
                 MessageBox.Show($"Update check failed. Check for updates here: https://github.com/FunOrange/circle-tracker/releases/latest {Environment.NewLine}e.Message", "Error");
             }
 
-            if (latestRelease.tag_name != CURRENT_RELEASE_TAG || true)
+            if (latestRelease.tag_name != CURRENT_RELEASE_TAG)
             {
                 var result = MessageBox.Show(
                     $"Release Notes:{Environment.NewLine}{latestRelease.body}{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}" +
@@ -171,10 +171,6 @@ namespace Circle_Tracker
                         $"The download will begin after this window is closed.");
                     OpenUrl(latestRelease.assets[0].browser_download_url);
                 }
-            }
-            else
-            {
-                MessageBox.Show($"There's a new update for circle tracker! {Environment.NewLine}{Environment.NewLine}Release Notes:{Environment.NewLine}{latestRelease.body}");
             }
         }
     }
