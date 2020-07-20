@@ -227,7 +227,7 @@ namespace Circle_Tracker
                 {
                     if (GameState == OsuMemoryStatus.Playing && newGameState != OsuMemoryStatus.Playing) // beatmap quit
                     {
-                        Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
+                        //Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
                         PostBeatmapEntryToGoogleSheets();
                         // reset game variables
                         TotalBeatmapHits = 0;
@@ -298,7 +298,7 @@ namespace Circle_Tracker
                         // detect retry
                         if (newSongTime < Time && Time > 0)
                         {
-                            Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
+                            //Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
                             PostBeatmapEntryToGoogleSheets();
                             // reset game variables
                             TotalBeatmapHits = 0;
@@ -365,7 +365,7 @@ namespace Circle_Tracker
             if (errstr != "no error")
             {
                 // TODO: An error occurs when opening a non-osu!standard map (mania, taiko, etc)
-                Console.WriteLine("Could not calculate difficulty");
+                //Console.WriteLine("Could not calculate difficulty");
                 return (0, 0, 0);
             }
             decimal stars = oppaiData.GetValue("stars").ToObject<decimal>();
@@ -453,7 +453,7 @@ namespace Circle_Tracker
         {
             if (!SheetsApiReady)
             {
-                Console.WriteLine("PostBeatmapEntryToGoogleSheets: Google Sheets API has not yet been setup.");
+                //Console.WriteLine("PostBeatmapEntryToGoogleSheets: Google Sheets API has not yet been setup.");
                 return;
             }
             if (TotalBeatmapHits < 10) return;
