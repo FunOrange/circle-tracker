@@ -94,7 +94,14 @@ namespace Circle_Tracker
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            tracker.Tick();
+            try
+            {
+                tracker.Tick();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Exception occurred: {Environment.NewLine}{ex.Message}{Environment.NewLine}Please PLEASE tell FunOrange about this.", "Error");
+            }
         }
     }
 }

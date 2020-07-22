@@ -1,0 +1,6 @@
+--- BUGS ---
+[] Plays get submitted while watching replays or spectating
+[] Game data doesn't get updated in multi
+
+--- FEATURES ---
+[] Extended info (artist, song, mapper, beatmap length, )
