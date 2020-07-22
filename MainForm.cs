@@ -8,16 +8,20 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using IWshRuntimeLibrary;
 
 namespace Circle_Tracker
 {
     public partial class MainForm : Form
     {
         private readonly Tracker tracker;
+        private bool MinimizeToTrayEnabled = true;
         public MainForm()
         {
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
             InitializeComponent();
             //this.Icon = Properties.Resources.iconbars;
+            startupCheckBox.Checked = ShortcutExists();
 
             try
             {
@@ -36,7 +40,7 @@ namespace Circle_Tracker
             soundEnabledCheckbox.Checked = tracker.SubmitSoundEnabled;
 
             tracker.InitGoogleAPI(silent:true);
-            SetCredentialsFound(File.Exists("credentials.json"));
+            SetCredentialsFound(System.IO.File.Exists("credentials.json"));
             updateTimer.Start();
         }
 
@@ -106,5 +110,56 @@ namespace Circle_Tracker
                     , "Error");
             }
         }
+
+        private void startupCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (startupCheckBox.Checked)
+            {
+                CreateShortcut();
+            }
+            else
+            {
+                DeleteShortcut();
+            }
+        }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+             Show();
+             this.WindowState = FormWindowState.Normal;
+             notifyIcon1.Visible = false;
+        }
+
+        private void MinimizeToTray(object sender, EventArgs e)
+        {
+            if (MinimizeToTrayEnabled)
+            {
+                Hide();
+                notifyIcon1.Visible = true;
+            }
+        }
+        private void CreateShortcut()
+        {
+            object shDesktop = (object)"Desktop";
+            WshShell shell = new WshShell();
+            string shortcutAddress = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" + @"\circle-tracker.lnk";
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
+            shortcut.Description = "Circle Tracker (startup shortcut)";
+            shortcut.Hotkey = "";
+            shortcut.TargetPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            shortcut.Save();
+        }
+        private void DeleteShortcut()
+        {
+            string shortcutAddress = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" + @"\circle-tracker.lnk";
+            System.IO.File.Delete(shortcutAddress);
+        }
+        private bool ShortcutExists()
+        {
+            string shortcutAddress = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" + @"\circle-tracker.lnk";
+            return System.IO.File.Exists(shortcutAddress);
+        }
+
+
     }
 }

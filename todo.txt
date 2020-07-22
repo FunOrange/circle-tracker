@@ -1,7 +1,10 @@
 --- BUGS ---
 [] Plays get submitted while watching replays or spectating
-[] Game data doesn't get updated in multi
+[DONE] Game data doesn't get updated in multi
 
 --- FEATURES ---
 [] Extended info (artist, song, mapper, beatmap length, )
+[] Extended info (300s, 100s, 50s)
 [DONE] Extended mods (EZ, FL)
+[DONE] Minimize to system tray
+[DONE] Launch on Windows startup

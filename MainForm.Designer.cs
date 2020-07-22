@@ -57,17 +57,20 @@
             this.spreadsheetIdTextBox = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.modsTextBox = new System.Windows.Forms.TextBox();
+            this.textBoxCS = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.textBoxOD = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
+            this.textBoxAR = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.updateTimer = new System.Windows.Forms.Timer(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.textBoxAR = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.textBoxOD = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.textBoxCS = new System.Windows.Forms.TextBox();
+            this.startupCheckBox = new System.Windows.Forms.CheckBox();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -123,7 +126,7 @@
             this.songsFolderTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.songsFolderTextBox.Location = new System.Drawing.Point(76, 6);
             this.songsFolderTextBox.Name = "songsFolderTextBox";
-            this.songsFolderTextBox.Size = new System.Drawing.Size(442, 20);
+            this.songsFolderTextBox.Size = new System.Drawing.Size(455, 20);
             this.songsFolderTextBox.TabIndex = 1;
             this.songsFolderTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -143,7 +146,7 @@
             this.beatmapTextBox.Location = new System.Drawing.Point(76, 31);
             this.beatmapTextBox.Name = "beatmapTextBox";
             this.beatmapTextBox.ReadOnly = true;
-            this.beatmapTextBox.Size = new System.Drawing.Size(442, 20);
+            this.beatmapTextBox.Size = new System.Drawing.Size(455, 20);
             this.beatmapTextBox.TabIndex = 1;
             this.beatmapTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -332,7 +335,7 @@
             this.groupBox2.Controls.Add(this.timeTextBox);
             this.groupBox2.Location = new System.Drawing.Point(321, 62);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(189, 186);
+            this.groupBox2.Size = new System.Drawing.Size(204, 186);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Beatmap Info";
@@ -345,6 +348,49 @@
             this.modsTextBox.Size = new System.Drawing.Size(86, 20);
             this.modsTextBox.TabIndex = 1;
             // 
+            // textBoxCS
+            // 
+            this.textBoxCS.Location = new System.Drawing.Point(142, 44);
+            this.textBoxCS.Name = "textBoxCS";
+            this.textBoxCS.ReadOnly = true;
+            this.textBoxCS.Size = new System.Drawing.Size(39, 20);
+            this.textBoxCS.TabIndex = 1;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(108, 73);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(22, 13);
+            this.label12.TabIndex = 0;
+            this.label12.Text = "AR";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(108, 98);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(23, 13);
+            this.label11.TabIndex = 0;
+            this.label11.Text = "OD";
+            // 
+            // textBoxOD
+            // 
+            this.textBoxOD.Location = new System.Drawing.Point(142, 95);
+            this.textBoxOD.Name = "textBoxOD";
+            this.textBoxOD.ReadOnly = true;
+            this.textBoxOD.Size = new System.Drawing.Size(39, 20);
+            this.textBoxOD.TabIndex = 1;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(108, 47);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(21, 13);
+            this.label10.TabIndex = 0;
+            this.label10.Text = "CS";
+            // 
             // label9
             // 
             this.label9.AutoSize = true;
@@ -354,13 +400,21 @@
             this.label9.TabIndex = 0;
             this.label9.Text = "mods";
             // 
+            // textBoxAR
+            // 
+            this.textBoxAR.Location = new System.Drawing.Point(142, 70);
+            this.textBoxAR.Name = "textBoxAR";
+            this.textBoxAR.ReadOnly = true;
+            this.textBoxAR.Size = new System.Drawing.Size(39, 20);
+            this.textBoxAR.TabIndex = 1;
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.tableLayoutPanel1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(524, 56);
+            this.panel1.Size = new System.Drawing.Size(537, 56);
             this.panel1.TabIndex = 5;
             // 
             // tableLayoutPanel1
@@ -379,7 +433,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(524, 56);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(537, 56);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // updateTimer
@@ -387,64 +441,45 @@
             this.updateTimer.Interval = 60;
             this.updateTimer.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // textBoxAR
+            // startupCheckBox
             // 
-            this.textBoxAR.Location = new System.Drawing.Point(142, 70);
-            this.textBoxAR.Name = "textBoxAR";
-            this.textBoxAR.ReadOnly = true;
-            this.textBoxAR.Size = new System.Drawing.Size(39, 20);
-            this.textBoxAR.TabIndex = 1;
+            this.startupCheckBox.AutoSize = true;
+            this.startupCheckBox.Location = new System.Drawing.Point(321, 284);
+            this.startupCheckBox.Name = "startupCheckBox";
+            this.startupCheckBox.Size = new System.Drawing.Size(161, 17);
+            this.startupCheckBox.TabIndex = 6;
+            this.startupCheckBox.Text = "Launch on Windows Startup";
+            this.startupCheckBox.UseVisualStyleBackColor = true;
+            this.startupCheckBox.CheckedChanged += new System.EventHandler(this.startupCheckBox_CheckedChanged);
             // 
-            // label10
+            // notifyIcon1
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(108, 47);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(21, 13);
-            this.label10.TabIndex = 0;
-            this.label10.Text = "CS";
+            this.notifyIcon1.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.notifyIcon1.BalloonTipText = "Info";
+            this.notifyIcon1.BalloonTipTitle = "Hey";
+            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
+            this.notifyIcon1.Text = "notifyIcon1";
+            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
-            // textBoxOD
+            // button1
             // 
-            this.textBoxOD.Location = new System.Drawing.Point(142, 95);
-            this.textBoxOD.Name = "textBoxOD";
-            this.textBoxOD.ReadOnly = true;
-            this.textBoxOD.Size = new System.Drawing.Size(39, 20);
-            this.textBoxOD.TabIndex = 1;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(108, 98);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(23, 13);
-            this.label11.TabIndex = 0;
-            this.label11.Text = "OD";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(108, 73);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(22, 13);
-            this.label12.TabIndex = 0;
-            this.label12.Text = "AR";
-            // 
-            // textBoxCS
-            // 
-            this.textBoxCS.Location = new System.Drawing.Point(142, 44);
-            this.textBoxCS.Name = "textBoxCS";
-            this.textBoxCS.ReadOnly = true;
-            this.textBoxCS.Size = new System.Drawing.Size(39, 20);
-            this.textBoxCS.TabIndex = 1;
+            this.button1.Location = new System.Drawing.Point(321, 255);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(204, 23);
+            this.button1.TabIndex = 7;
+            this.button1.Text = "Minimize to Tray";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.MinimizeToTray);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(524, 289);
+            this.ClientSize = new System.Drawing.Size(537, 323);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.startupCheckBox);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -458,6 +493,7 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -501,6 +537,9 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox textBoxAR;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.CheckBox startupCheckBox;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.Button button1;
     }
 }
 
