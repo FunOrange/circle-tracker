@@ -411,7 +411,6 @@
             this.textBoxOD.ReadOnly = true;
             this.textBoxOD.Size = new System.Drawing.Size(39, 20);
             this.textBoxOD.TabIndex = 1;
-            this.textBoxOD.Text = "gt";
             // 
             // label11
             // 

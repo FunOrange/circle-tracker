@@ -119,7 +119,7 @@ namespace Circle_Tracker
                 decimal prevIntervalUpperValue = lut[lowerIndex].Item2;
                 decimal previousSlope = prevIntervalUpperValue - prevIntervalLowerValue;
                 // Clamp the lerped value to maxValue
-                decimal lerp = upperValue + stepFraction * previousSlope;
+                decimal lerp = lowerValue + stepFraction * previousSlope;
                 return Math.Min(lerp, maxValue);
             }
             else
