@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label1 = new System.Windows.Forms.Label();
             this.hitsTextBox = new System.Windows.Forms.TextBox();
@@ -59,6 +60,14 @@
             this.label9 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.updateTimer = new System.Windows.Forms.Timer(this.components);
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.textBoxAR = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.textBoxOD = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.textBoxCS = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -114,7 +123,7 @@
             this.songsFolderTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.songsFolderTextBox.Location = new System.Drawing.Point(76, 6);
             this.songsFolderTextBox.Name = "songsFolderTextBox";
-            this.songsFolderTextBox.Size = new System.Drawing.Size(419, 20);
+            this.songsFolderTextBox.Size = new System.Drawing.Size(442, 20);
             this.songsFolderTextBox.TabIndex = 1;
             this.songsFolderTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -134,7 +143,7 @@
             this.beatmapTextBox.Location = new System.Drawing.Point(76, 31);
             this.beatmapTextBox.Name = "beatmapTextBox";
             this.beatmapTextBox.ReadOnly = true;
-            this.beatmapTextBox.Size = new System.Drawing.Size(419, 20);
+            this.beatmapTextBox.Size = new System.Drawing.Size(442, 20);
             this.beatmapTextBox.TabIndex = 1;
             this.beatmapTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -161,7 +170,7 @@
             this.aimTextBox.Location = new System.Drawing.Point(54, 70);
             this.aimTextBox.Name = "aimTextBox";
             this.aimTextBox.ReadOnly = true;
-            this.aimTextBox.Size = new System.Drawing.Size(52, 20);
+            this.aimTextBox.Size = new System.Drawing.Size(39, 20);
             this.aimTextBox.TabIndex = 1;
             // 
             // starsTextBox
@@ -169,7 +178,7 @@
             this.starsTextBox.Location = new System.Drawing.Point(54, 44);
             this.starsTextBox.Name = "starsTextBox";
             this.starsTextBox.ReadOnly = true;
-            this.starsTextBox.Size = new System.Drawing.Size(52, 20);
+            this.starsTextBox.Size = new System.Drawing.Size(39, 20);
             this.starsTextBox.TabIndex = 1;
             // 
             // speedLabel
@@ -186,7 +195,7 @@
             this.speedTextBox.Location = new System.Drawing.Point(54, 95);
             this.speedTextBox.Name = "speedTextBox";
             this.speedTextBox.ReadOnly = true;
-            this.speedTextBox.Size = new System.Drawing.Size(52, 20);
+            this.speedTextBox.Size = new System.Drawing.Size(39, 20);
             this.speedTextBox.TabIndex = 1;
             // 
             // ConnectApiButton
@@ -304,20 +313,26 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.modsTextBox);
+            this.groupBox2.Controls.Add(this.textBoxCS);
             this.groupBox2.Controls.Add(this.starsTextBox);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.label2);
+            this.groupBox2.Controls.Add(this.label12);
             this.groupBox2.Controls.Add(this.aimLabel);
+            this.groupBox2.Controls.Add(this.label11);
             this.groupBox2.Controls.Add(this.speedLabel);
+            this.groupBox2.Controls.Add(this.textBoxOD);
             this.groupBox2.Controls.Add(this.speedTextBox);
+            this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Controls.Add(this.label9);
+            this.groupBox2.Controls.Add(this.textBoxAR);
             this.groupBox2.Controls.Add(this.starsLabel);
             this.groupBox2.Controls.Add(this.aimTextBox);
             this.groupBox2.Controls.Add(this.hitsTextBox);
             this.groupBox2.Controls.Add(this.timeTextBox);
             this.groupBox2.Location = new System.Drawing.Point(321, 62);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(172, 186);
+            this.groupBox2.Size = new System.Drawing.Size(189, 186);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Beatmap Info";
@@ -345,7 +360,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(501, 56);
+            this.panel1.Size = new System.Drawing.Size(524, 56);
             this.panel1.TabIndex = 5;
             // 
             // tableLayoutPanel1
@@ -364,23 +379,78 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(501, 56);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(524, 56);
             this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // updateTimer
+            // 
+            this.updateTimer.Interval = 60;
+            this.updateTimer.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // textBoxAR
+            // 
+            this.textBoxAR.Location = new System.Drawing.Point(142, 70);
+            this.textBoxAR.Name = "textBoxAR";
+            this.textBoxAR.ReadOnly = true;
+            this.textBoxAR.Size = new System.Drawing.Size(39, 20);
+            this.textBoxAR.TabIndex = 1;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(108, 47);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(21, 13);
+            this.label10.TabIndex = 0;
+            this.label10.Text = "CS";
+            // 
+            // textBoxOD
+            // 
+            this.textBoxOD.Location = new System.Drawing.Point(142, 95);
+            this.textBoxOD.Name = "textBoxOD";
+            this.textBoxOD.ReadOnly = true;
+            this.textBoxOD.Size = new System.Drawing.Size(39, 20);
+            this.textBoxOD.TabIndex = 1;
+            this.textBoxOD.Text = "gt";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(108, 98);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(23, 13);
+            this.label11.TabIndex = 0;
+            this.label11.Text = "OD";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(108, 73);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(22, 13);
+            this.label12.TabIndex = 0;
+            this.label12.Text = "AR";
+            // 
+            // textBoxCS
+            // 
+            this.textBoxCS.Location = new System.Drawing.Point(142, 44);
+            this.textBoxCS.Name = "textBoxCS";
+            this.textBoxCS.ReadOnly = true;
+            this.textBoxCS.Size = new System.Drawing.Size(39, 20);
+            this.textBoxCS.TabIndex = 1;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(501, 289);
+            this.ClientSize = new System.Drawing.Size(524, 289);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Circle Tracker";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.Load += new System.EventHandler(this.OnLoad);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -424,6 +494,14 @@
         private System.Windows.Forms.TextBox modsTextBox;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.CheckBox soundEnabledCheckbox;
+        private System.Windows.Forms.Timer updateTimer;
+        private System.Windows.Forms.TextBox textBoxCS;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox textBoxOD;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox textBoxAR;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

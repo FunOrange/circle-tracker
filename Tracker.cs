@@ -15,8 +15,6 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Circle_Tracker
@@ -24,9 +22,7 @@ namespace Circle_Tracker
     class Tracker
     {
         private readonly IOsuMemoryReader osuReader;
-        private Thread thread;
         private int updateInterval = 100;
-        private bool exiting;
         private MainForm form;
 
         // Beatmap
@@ -133,13 +129,6 @@ namespace Circle_Tracker
             }
         }
 
-        public void StartUpdateThread()
-        {
-            exiting = false;
-            thread = new Thread(TickLoop);
-            thread.Start();
-        }
-
         private bool PlayDataValid (PlayContainer pc) {
             return !(
                 pc.Acc      == 100 &&
@@ -161,13 +150,6 @@ namespace Circle_Tracker
             SongsFolder = folder;
         }
 
-        public void OnClosing()
-        {
-            exiting = true;
-            // TODO: thread.Join() gets stuck here.
-            // Solution: Use mutex to wait for when thread execution is not inside form.Invoke()
-            thread?.Join();
-        }
         private Beatmap BeatmapConstructorWrapper(string beatmapFilename)
         {
             Beatmap newBeatmap = new Beatmap(beatmapFilename);
@@ -206,115 +188,110 @@ namespace Circle_Tracker
 
             return true;
         }
-        public void TickLoop()
+        public void Tick()
         {
-            while (!exiting)
+            // beatmap
+            string beatmapFilename = osuReader.GetOsuFileName();
+            if (beatmapFilename != "" && beatmapFilename != Path.GetFileName(BeatmapPath))
             {
+                if (TrySwitchBeatmap())
+                    form.UpdateControls();
+            }
 
-                // beatmap
-                string beatmapFilename = osuReader.GetOsuFileName();
-                if (beatmapFilename != "" && beatmapFilename != Path.GetFileName(BeatmapPath))
+            // gameplay stuff
+            int _;
+            OsuMemoryStatus newGameState = osuReader.GetCurrentStatus(out _);
+
+            if (newGameState != GameState) // state transition
+            {
+                if (GameState == OsuMemoryStatus.Playing && newGameState != OsuMemoryStatus.Playing) // beatmap quit
                 {
-                    if (TrySwitchBeatmap())
-                        form.Invoke(new MethodInvoker(form.UpdateControls));
+                    //Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
+                    PostBeatmapEntryToGoogleSheets();
+                    // reset game variables
+                    TotalBeatmapHits = 0;
+                    Time = 0;
                 }
+                GameState = newGameState;
+                form.UpdateControls();
+            }
 
-                // gameplay stuff
-                int _;
-                OsuMemoryStatus newGameState = osuReader.GetCurrentStatus(out _);
-
-                if (newGameState != GameState) // state transition
+            // update mods
+            if (newGameState == OsuMemoryStatus.SongSelect && beatmap != null)
+            {
+                RawMods = osuReader.GetMods();
+                if (RawMods != -1) // invalid
                 {
-                    if (GameState == OsuMemoryStatus.Playing && newGameState != OsuMemoryStatus.Playing) // beatmap quit
+                    Hidden     = (RawMods & 0b00001000) != 0 ? true : false;
+                    Hardrock   = (RawMods & 0b00010000) != 0 ? true : false;
+                    Doubletime = (RawMods & 0b01000000) != 0 ? true : false;
+                    Auto       = (RawMods & 2048)       != 0 ? true : false;
+                    (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
+
+                    // CS AR OD
+                    // FIXME: no support for HalfTime
+                    if (Doubletime && Hardrock)
                     {
-                        //Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
+                        BeatmapCs = beatmap.CircleSize * 1.3M;
+                        BeatmapAr = DifficultyCalculator.CalculateARWithDTHR(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithDTHR(beatmap.OverallDifficulty);
+                    }
+                    else if (Doubletime)
+                    {
+                        BeatmapCs = beatmap.CircleSize;
+                        BeatmapAr = DifficultyCalculator.CalculateARWithDT(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithDT(beatmap.OverallDifficulty);
+                    }
+                    else if (Hardrock)
+                    {
+                        BeatmapCs = beatmap.CircleSize * 1.3M;
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHR(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHR(beatmap.OverallDifficulty);
+                    }
+                    else // NoMod
+                    {
+                        BeatmapCs = beatmap.CircleSize;
+                        BeatmapAr = beatmap.ApproachRate;
+                        BeatmapOd = beatmap.OverallDifficulty;
+                    }
+                }
+            }
+
+            // read gameplay data
+            if (newGameState == OsuMemoryStatus.Playing)
+            {
+                // read new game variables
+                PlayContainer playData = new PlayContainer();
+                osuReader.GetPlayData(playData);
+
+                if (PlayDataValid(playData))
+                {
+                    int newHits = playData.C300 + playData.C100 + playData.C50;
+                    int newSongTime = osuReader.ReadPlayTime();
+
+                    // update hits
+                    if (newHits > cachedHits && newHits - cachedHits < 5)
+                        TotalBeatmapHits += newHits - cachedHits;
+                    cachedHits = newHits;
+
+                    // detect retry
+                    if (newSongTime < Time && Time > 0)
+                    {
+                        //Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
                         PostBeatmapEntryToGoogleSheets();
                         // reset game variables
                         TotalBeatmapHits = 0;
                         Time = 0;
                     }
-                    GameState = newGameState;
-                    form.Invoke(new MethodInvoker(form.UpdateControls));
-                }
-
-                // update mods
-                if (newGameState == OsuMemoryStatus.SongSelect && beatmap != null)
-                {
-                    RawMods = osuReader.GetMods();
-                    if (RawMods != -1) // invalid
+                    else
                     {
-                        Hidden     = (RawMods & 0b00001000) != 0 ? true : false;
-                        Hardrock   = (RawMods & 0b00010000) != 0 ? true : false;
-                        Doubletime = (RawMods & 0b01000000) != 0 ? true : false;
-                        Auto       = (RawMods & 2048)       != 0 ? true : false;
-                        (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
-
-                        // CS AR OD
-                        // FIXME: no support for HalfTime
-                        if (Doubletime && Hardrock)
-                        {
-                            BeatmapCs = beatmap.CircleSize * 1.3M;
-                            BeatmapAr = DifficultyCalculator.CalculateARWithDTHR(beatmap.ApproachRate);
-                            BeatmapOd = DifficultyCalculator.CalculateODWithDTHR(beatmap.OverallDifficulty);
-                        }
-                        else if (Doubletime)
-                        {
-                            BeatmapCs = beatmap.CircleSize;
-                            BeatmapAr = DifficultyCalculator.CalculateARWithDT(beatmap.ApproachRate);
-                            BeatmapOd = DifficultyCalculator.CalculateODWithDT(beatmap.OverallDifficulty);
-                        }
-                        else if (Hardrock)
-                        {
-                            BeatmapCs = beatmap.CircleSize * 1.3M;
-                            BeatmapAr = DifficultyCalculator.CalculateARWithHR(beatmap.ApproachRate);
-                            BeatmapOd = DifficultyCalculator.CalculateODWithHR(beatmap.OverallDifficulty);
-                        }
-                        else // NoMod
-                        {
-                            BeatmapCs = beatmap.CircleSize;
-                            BeatmapAr = beatmap.ApproachRate;
-                            BeatmapOd = beatmap.OverallDifficulty;
-                        }
+                        // update time
+                        Time = newSongTime;
                     }
+
+
+                    form.UpdateControls();
                 }
-
-                // read gameplay data
-                if (newGameState == OsuMemoryStatus.Playing)
-                {
-                    // read new game variables
-                    PlayContainer playData = new PlayContainer();
-                    osuReader.GetPlayData(playData);
-
-                    if (PlayDataValid(playData))
-                    {
-                        int newHits = playData.C300 + playData.C100 + playData.C50;
-                        int newSongTime = osuReader.ReadPlayTime();
-
-                        // update hits
-                        if (newHits > cachedHits && newHits - cachedHits < 5)
-                            TotalBeatmapHits += newHits - cachedHits;
-                        cachedHits = newHits;
-
-                        // detect retry
-                        if (newSongTime < Time && Time > 0)
-                        {
-                            //Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
-                            PostBeatmapEntryToGoogleSheets();
-                            // reset game variables
-                            TotalBeatmapHits = 0;
-                            Time = 0;
-                        }
-                        else
-                        {
-                            // update time
-                            Time = newSongTime;
-                        }
-
-
-                        form.Invoke(new MethodInvoker(form.UpdateControls));
-                    }
-                }
-                Thread.Sleep(updateInterval);
             }
         }
 

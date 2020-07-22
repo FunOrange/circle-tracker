@@ -7,7 +7,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Circle_Tracker
@@ -38,17 +37,13 @@ namespace Circle_Tracker
 
             tracker.InitGoogleAPI(silent:true);
             SetCredentialsFound(File.Exists("credentials.json"));
+            updateTimer.Start();
         }
 
         public void SetCredentialsFound(bool found)
         {
             credentialsLabel.Text      = found ? "Found" : "Missing";
             credentialsLabel.ForeColor = found ? Color.Green : Color.Red;
-        }
-
-        private void OnLoad(object sender, EventArgs e)
-        {
-            tracker.StartUpdateThread();
         }
 
         public void UpdateControls()
@@ -61,11 +56,9 @@ namespace Circle_Tracker
             aimTextBox.Text     = tracker.BeatmapAim.ToString("0.00");
             speedTextBox.Text   = tracker.BeatmapSpeed.ToString("0.00");
             modsTextBox.Text    = tracker.GetModsString();
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            tracker.OnClosing();
+            textBoxCS.Text      = tracker.BeatmapCs.ToString("0.0");
+            textBoxAR.Text      = tracker.BeatmapAr.ToString("0.0");
+            textBoxOD.Text      = tracker.BeatmapOd.ToString("0.0");
         }
 
         private void songsFolderTextBox_TextChanged(object sender, EventArgs e)
@@ -97,6 +90,11 @@ namespace Circle_Tracker
         private void soundEnabledCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             tracker.SubmitSoundEnabled = soundEnabledCheckbox.Checked;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            tracker.Tick();
         }
     }
 }
