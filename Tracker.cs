@@ -217,7 +217,11 @@ namespace Circle_Tracker
             }
 
             // update mods
-            if (newGameState == OsuMemoryStatus.SongSelect && beatmap != null)
+            bool songSelectGameState =
+                newGameState == OsuMemoryStatus.SongSelect
+                || newGameState == OsuMemoryStatus.MultiplayerRoom
+                || newGameState == OsuMemoryStatus.MultiplayerSongSelect;
+            if (songSelectGameState && beatmap != null)
             {
                 RawMods = osuReader.GetMods();
                 if (RawMods != -1) // invalid
