@@ -101,7 +101,7 @@ namespace Circle_Tracker
 
     class Updater
     {
-        static readonly string CURRENT_RELEASE_TAG = "v4"; // Jun: REMEMBER TO CHANGE THIS every time you make a new release.
+        static readonly string CURRENT_RELEASE_TAG = "v5"; // Jun: REMEMBER TO CHANGE THIS every time you make a new release.
         static HttpClient client;
         static Updater()
         {
@@ -109,34 +109,6 @@ namespace Circle_Tracker
             client.BaseAddress = new Uri(@"https://api.github.com/");
             client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
             client.DefaultRequestHeaders.Add("User-Agent", "Circle-Tracker");
-        }
-        private static void OpenUrl(string url)
-        {
-            try
-            {
-                Process.Start(url);
-            }
-            catch
-            {
-                // hack because of this: https://github.com/dotnet/corefx/issues/10361
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", url);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", url);
-                }
-                else
-                {
-                    throw;
-                }
-            }
         }
         public static async void CheckForUpdates()
         {
@@ -169,7 +141,7 @@ namespace Circle_Tracker
                         $"credentials.json{Environment.NewLine}" +
                         $"user_settings.txt{Environment.NewLine}{Environment.NewLine}" +
                         $"The download will begin after this window is closed.");
-                    OpenUrl(latestRelease.assets[0].browser_download_url);
+                    Process.Start(latestRelease.assets[0].browser_download_url);
                 }
             }
         }

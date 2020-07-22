@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30105.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "circle-tracker-dnf", "circle-tracker-dnf.csproj", "{9B637F4E-DCE1-4C04-AA5E-A04EA439CB2F}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FsBeatmapProcessor", "submodules\FsBeatmapParser\FsBeatmapProcessor.fsproj", "{D7DD2B88-BA2D-4324-8962-DE022BFF64B7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OsuMemoryDataProvider", "submodules\ProcessMemoryDataFinder\OsuMemoryDataProvider\OsuMemoryDataProvider.csproj", "{8872CF0E-8C60-4100-82B5-B1D13F3D464A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessMemoryDataFinder", "submodules\ProcessMemoryDataFinder\ProcessMemoryDataFinder\ProcessMemoryDataFinder.csproj", "{23B33702-DCF1-4080-BF8B-A3FC4C12E13A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B637F4E-DCE1-4C04-AA5E-A04EA439CB2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B637F4E-DCE1-4C04-AA5E-A04EA439CB2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B637F4E-DCE1-4C04-AA5E-A04EA439CB2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B637F4E-DCE1-4C04-AA5E-A04EA439CB2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7DD2B88-BA2D-4324-8962-DE022BFF64B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7DD2B88-BA2D-4324-8962-DE022BFF64B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7DD2B88-BA2D-4324-8962-DE022BFF64B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7DD2B88-BA2D-4324-8962-DE022BFF64B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8872CF0E-8C60-4100-82B5-B1D13F3D464A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8872CF0E-8C60-4100-82B5-B1D13F3D464A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8872CF0E-8C60-4100-82B5-B1D13F3D464A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8872CF0E-8C60-4100-82B5-B1D13F3D464A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23B33702-DCF1-4080-BF8B-A3FC4C12E13A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23B33702-DCF1-4080-BF8B-A3FC4C12E13A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23B33702-DCF1-4080-BF8B-A3FC4C12E13A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23B33702-DCF1-4080-BF8B-A3FC4C12E13A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B0966CD3-F1A7-4C52-8B14-644F22BCA358}
+	EndGlobalSection
+EndGlobal

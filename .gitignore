@@ -3,4 +3,5 @@
 bin/
 obj/
 Releases/
+packages/
 .vs/

@@ -18,7 +18,7 @@ namespace Circle_Tracker
         public MainForm()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.iconbars;
+            //this.Icon = Properties.Resources.iconbars;
 
             try
             {
@@ -53,7 +53,7 @@ namespace Circle_Tracker
 
         public void UpdateControls()
         {
-            BackColor           = (tracker.SheetsApiReady && tracker.GameState == OsuMemoryStatus.Playing) ? SystemColors.Info : SystemColors.Control;
+            groupBox2.BackColor = (tracker.SheetsApiReady && tracker.GameState == OsuMemoryStatus.Playing) ? Color.FromArgb(214, 241, 216) : SystemColors.Control;
             hitsTextBox.Text    = tracker.TotalBeatmapHits.ToString();
             timeTextBox.Text    = tracker.Time.ToString();
             beatmapTextBox.Text = tracker.BeatmapString;
