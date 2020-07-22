@@ -1,0 +1,3 @@
+[submodule "submodules/ProcessMemoryDataFinder"]
+	path = submodules/ProcessMemoryDataFinder
+	url = https://github.com/Piotrekol/ProcessMemoryDataFinder.git
