@@ -100,7 +100,10 @@ namespace Circle_Tracker
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Exception occurred: {Environment.NewLine}{ex.Message}{Environment.NewLine}Please PLEASE tell FunOrange about this.", "Error");
+                MessageBox.Show($"Exception occurred: {Environment.NewLine}{Environment.NewLine}" +
+                    $"{ex.Message}{Environment.NewLine}{Environment.NewLine}" +
+                    $"Please PLEASE tell FunOrange about this."
+                    , "Error");
             }
         }
     }

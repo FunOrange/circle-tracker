@@ -4,3 +4,4 @@
 
 --- FEATURES ---
 [] Extended info (artist, song, mapper, beatmap length, )
+[DONE] Extended mods (EZ, FL)

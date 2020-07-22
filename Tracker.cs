@@ -52,6 +52,8 @@ namespace Circle_Tracker
         public bool Hidden { get; set; } = false;
         public bool Hardrock { get; set; } = false;
         public bool Doubletime { get; set; } = false;
+        public bool EZ { get; set; } = false;
+        public bool Flashlight { get; set; } = false;
         public bool Auto { get; set; } = false;
 
         public decimal BeatmapStars { get; private set; }
@@ -194,8 +196,7 @@ namespace Circle_Tracker
             string beatmapFilename = osuReader.GetOsuFileName();
             if (beatmapFilename != "" && beatmapFilename != Path.GetFileName(BeatmapPath))
             {
-                if (TrySwitchBeatmap())
-                    form.UpdateControls();
+                TrySwitchBeatmap();
             }
 
             // gameplay stuff
@@ -213,7 +214,6 @@ namespace Circle_Tracker
                     Time = 0;
                 }
                 GameState = newGameState;
-                form.UpdateControls();
             }
 
             // update mods
@@ -222,10 +222,13 @@ namespace Circle_Tracker
                 RawMods = osuReader.GetMods();
                 if (RawMods != -1) // invalid
                 {
-                    Hidden     = (RawMods & 0b00001000) != 0 ? true : false;
-                    Hardrock   = (RawMods & 0b00010000) != 0 ? true : false;
-                    Doubletime = (RawMods & 0b01000000) != 0 ? true : false;
-                    Auto       = (RawMods & 2048)       != 0 ? true : false;
+                    Console.WriteLine(RawMods);
+                    Hidden     = (RawMods & 8) != 0 ? true : false;
+                    Hardrock   = (RawMods & 16) != 0 ? true : false;
+                    Doubletime = ((RawMods & 64) != 0 || (RawMods & 0b001001000000) != 0) ? true : false;
+                    EZ         = (RawMods & 2) != 0 ? true : false;
+                    Flashlight = (RawMods & 1024) != 0 ? true : false;
+                    Auto       = (RawMods & 2048) != 0 ? true : false;
                     (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
 
                     // CS AR OD
@@ -290,18 +293,20 @@ namespace Circle_Tracker
                     }
 
 
-                    form.UpdateControls();
                 }
             }
+            form.UpdateControls();
         }
 
         public string GetModsString()
         {
             string mods = "";
             if (Auto) mods += "AT";
+            if (EZ) mods += "EZ";
             if (Hidden) mods += "HD";
             if (Hardrock) mods += "HR";
             if (Doubletime) mods += "DT";
+            if (Flashlight) mods += "FL";
             return mods;
         }
 
@@ -456,7 +461,9 @@ namespace Circle_Tracker
                 /*J: CS         */ BeatmapCs,
                 /*K: AR         */ BeatmapAr,
                 /*L: OD         */ BeatmapOd,
-                /*M: Hits       */ TotalBeatmapHits
+                /*M: Hits       */ TotalBeatmapHits,
+                /*N: EZ         */ EZ ? "1":"",
+                /*O: FL         */ Flashlight ? "1":"",
             };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
