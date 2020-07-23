@@ -130,7 +130,7 @@
             this.songsFolderTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.songsFolderTextBox.Location = new System.Drawing.Point(76, 6);
             this.songsFolderTextBox.Name = "songsFolderTextBox";
-            this.songsFolderTextBox.Size = new System.Drawing.Size(532, 20);
+            this.songsFolderTextBox.Size = new System.Drawing.Size(457, 20);
             this.songsFolderTextBox.TabIndex = 1;
             this.songsFolderTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -150,7 +150,7 @@
             this.beatmapTextBox.Location = new System.Drawing.Point(76, 31);
             this.beatmapTextBox.Name = "beatmapTextBox";
             this.beatmapTextBox.ReadOnly = true;
-            this.beatmapTextBox.Size = new System.Drawing.Size(532, 20);
+            this.beatmapTextBox.Size = new System.Drawing.Size(457, 20);
             this.beatmapTextBox.TabIndex = 1;
             this.beatmapTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -421,7 +421,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(614, 56);
+            this.panel1.Size = new System.Drawing.Size(539, 56);
             this.panel1.TabIndex = 5;
             // 
             // tableLayoutPanel1
@@ -440,7 +440,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(614, 56);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(539, 56);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // updateGameVariablesTimer
@@ -516,7 +516,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(614, 380);
+            this.ClientSize = new System.Drawing.Size(539, 338);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.startupCheckBox);

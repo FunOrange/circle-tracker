@@ -472,16 +472,16 @@ namespace Circle_Tracker
                 ApplicationName = ApplicationName
             });
 
-            // just do an empty write to check if we can successfully write data
-            var range = $"'{SheetName}'!Y:Z";
+            // Try to set the headers to check if we can successfully write data
+            var range = $"'{SheetName}'!A1:1";
             var valueRange = new ValueRange();
-            var writeData = new List<object>() { "", "" };
+            var writeData = new List<object>() { "Date and Time", "Beatmap", "HD", "HR", "DT", "BPM", "Aim", "Speed", "Stars", "CS", "AR", "OD", "Objects Hit", "Acc", "300s", "100s", "50s", "Miss", "EZ", "HT", "FL"};
             valueRange.Values = new List<IList<object>> { writeData };
-            var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
-            appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+            var writeRequest = GoogleSheetsService.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
+            writeRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
             try
             {
-                var appendResponse = appendRequest.Execute();
+                var appendResponse = writeRequest.Execute();
             }
             catch (GoogleApiException e)
             {
@@ -508,10 +508,6 @@ namespace Circle_Tracker
 
             SetSheetsApiReady(true);
         }
-        private void SetRawDataHeaders()
-        {
-
-        }
         private void PostBeatmapEntryToGoogleSheets()
         {
             if (!SheetsApiReady)
@@ -528,6 +524,8 @@ namespace Circle_Tracker
                 Console.WriteLine($"Duplicate post detected");
                 return;
             }
+
+
             string dateTimeFormat = "yyyy'-'MM'-'dd h':'mm tt";
             string escapedName = BeatmapString.Replace("\"", "\"\"");
             string mods = GetModsString();
