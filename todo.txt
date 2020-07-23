@@ -5,7 +5,9 @@
 
 --- FEATURES ---
 [] Extended info (artist, song, mapper, beatmap length)
-[] Extended info (Accuracy, Rank)
+[] Automatically fix raw data headers
+[] Option to use semicolons instead of commas for function formulas
+[DONE] Extended info (Accuracy, Rank)
 [DONE] Extended info (300s, 100s, 50s)
 [DONE] Extended mods (EZ, FL)
 [DONE] Extended mods (HT)
@@ -13,3 +15,4 @@
 [DONE] EZ HT OD LUTs
 [DONE] Minimize to system tray
 [DONE] Launch on Windows startup
+[DONE] Async game variables update

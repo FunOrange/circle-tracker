@@ -72,6 +72,9 @@
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.updateFormTimer = new System.Windows.Forms.Timer(this.components);
+            this.accTextBox = new System.Windows.Forms.TextBox();
+            this.accLabel = new System.Windows.Forms.Label();
+            this.altSepCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -127,7 +130,7 @@
             this.songsFolderTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.songsFolderTextBox.Location = new System.Drawing.Point(76, 6);
             this.songsFolderTextBox.Name = "songsFolderTextBox";
-            this.songsFolderTextBox.Size = new System.Drawing.Size(454, 20);
+            this.songsFolderTextBox.Size = new System.Drawing.Size(532, 20);
             this.songsFolderTextBox.TabIndex = 1;
             this.songsFolderTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -147,7 +150,7 @@
             this.beatmapTextBox.Location = new System.Drawing.Point(76, 31);
             this.beatmapTextBox.Name = "beatmapTextBox";
             this.beatmapTextBox.ReadOnly = true;
-            this.beatmapTextBox.Size = new System.Drawing.Size(454, 20);
+            this.beatmapTextBox.Size = new System.Drawing.Size(532, 20);
             this.beatmapTextBox.TabIndex = 1;
             this.beatmapTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -204,7 +207,7 @@
             // 
             // ConnectApiButton
             // 
-            this.ConnectApiButton.Location = new System.Drawing.Point(6, 165);
+            this.ConnectApiButton.Location = new System.Drawing.Point(6, 179);
             this.ConnectApiButton.Name = "ConnectApiButton";
             this.ConnectApiButton.Size = new System.Drawing.Size(284, 46);
             this.ConnectApiButton.TabIndex = 2;
@@ -215,6 +218,7 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.credentialsLabel);
+            this.groupBox1.Controls.Add(this.altSepCheckBox);
             this.groupBox1.Controls.Add(this.soundEnabledCheckbox);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.statusLabel);
@@ -226,7 +230,7 @@
             this.groupBox1.Controls.Add(this.ConnectApiButton);
             this.groupBox1.Location = new System.Drawing.Point(9, 62);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(297, 216);
+            this.groupBox1.Size = new System.Drawing.Size(297, 237);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Google Sheets Integration";
@@ -319,6 +323,7 @@
             this.groupBox2.Controls.Add(this.modsTextBox);
             this.groupBox2.Controls.Add(this.textBoxCS);
             this.groupBox2.Controls.Add(this.starsTextBox);
+            this.groupBox2.Controls.Add(this.accLabel);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Controls.Add(this.label12);
@@ -331,12 +336,13 @@
             this.groupBox2.Controls.Add(this.label9);
             this.groupBox2.Controls.Add(this.textBoxAR);
             this.groupBox2.Controls.Add(this.starsLabel);
+            this.groupBox2.Controls.Add(this.accTextBox);
             this.groupBox2.Controls.Add(this.aimTextBox);
             this.groupBox2.Controls.Add(this.hitsTextBox);
             this.groupBox2.Controls.Add(this.timeTextBox);
             this.groupBox2.Location = new System.Drawing.Point(321, 62);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(204, 186);
+            this.groupBox2.Size = new System.Drawing.Size(204, 211);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Beatmap Info";
@@ -415,7 +421,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(536, 56);
+            this.panel1.Size = new System.Drawing.Size(614, 56);
             this.panel1.TabIndex = 5;
             // 
             // tableLayoutPanel1
@@ -434,7 +440,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(536, 56);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(614, 56);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // updateGameVariablesTimer
@@ -445,7 +451,7 @@
             // startupCheckBox
             // 
             this.startupCheckBox.AutoSize = true;
-            this.startupCheckBox.Location = new System.Drawing.Point(321, 284);
+            this.startupCheckBox.Location = new System.Drawing.Point(321, 314);
             this.startupCheckBox.Name = "startupCheckBox";
             this.startupCheckBox.Size = new System.Drawing.Size(161, 17);
             this.startupCheckBox.TabIndex = 6;
@@ -464,7 +470,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(321, 255);
+            this.button1.Location = new System.Drawing.Point(321, 285);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(204, 23);
             this.button1.TabIndex = 7;
@@ -477,12 +483,40 @@
             this.updateFormTimer.Interval = 60;
             this.updateFormTimer.Tick += new System.EventHandler(this.updateFormTimer_Tick);
             // 
+            // accTextBox
+            // 
+            this.accTextBox.Location = new System.Drawing.Point(54, 183);
+            this.accTextBox.Name = "accTextBox";
+            this.accTextBox.ReadOnly = true;
+            this.accTextBox.Size = new System.Drawing.Size(100, 20);
+            this.accTextBox.TabIndex = 1;
+            // 
+            // accLabel
+            // 
+            this.accLabel.AutoSize = true;
+            this.accLabel.Location = new System.Drawing.Point(15, 186);
+            this.accLabel.Name = "accLabel";
+            this.accLabel.Size = new System.Drawing.Size(25, 13);
+            this.accLabel.TabIndex = 0;
+            this.accLabel.Text = "acc";
+            // 
+            // altSepCheckBox
+            // 
+            this.altSepCheckBox.AutoSize = true;
+            this.altSepCheckBox.Location = new System.Drawing.Point(6, 156);
+            this.altSepCheckBox.Name = "altSepCheckBox";
+            this.altSepCheckBox.Size = new System.Drawing.Size(248, 17);
+            this.altSepCheckBox.TabIndex = 6;
+            this.altSepCheckBox.Text = "Toggle this to fix #ERROR! in Beatmap column";
+            this.altSepCheckBox.UseVisualStyleBackColor = true;
+            this.altSepCheckBox.CheckedChanged += new System.EventHandler(this.altSepCheckBox_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(536, 323);
+            this.ClientSize = new System.Drawing.Size(614, 380);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.startupCheckBox);
@@ -547,6 +581,9 @@
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Timer updateFormTimer;
+        private System.Windows.Forms.Label accLabel;
+        private System.Windows.Forms.TextBox accTextBox;
+        private System.Windows.Forms.CheckBox altSepCheckBox;
     }
 }
 

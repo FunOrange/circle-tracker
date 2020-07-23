@@ -13,6 +13,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Media;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -74,10 +75,14 @@ namespace Circle_Tracker
         public int Play50c { get; set; } = 0;
         public int PlayMissc { get; set; } = 0;
         public int TotalBeatmapHits { get; set; } = 0;
+        public decimal LastPostedAcc { get; set; } = 0;
+        public decimal Accuracy { get; set; } = 0;
         public int Time { get; set; } = 0;
 
         // Google Sheets API
+        Stopwatch stopwatch;
         public bool SheetsApiReady { get; set; } = false;
+        public bool UseAltFuncSeparator { get; set; } = false;
         private string spreadsheetId;
         public string SpreadsheetId {
             get => spreadsheetId;
@@ -106,6 +111,7 @@ namespace Circle_Tracker
             osuReader = OsuMemoryReader.Instance.GetInstanceForWindowTitleHint("");
             int _;
             GameState = osuReader.GetCurrentStatus(out _);
+            stopwatch = new Stopwatch();
         }
 
         private void SaveSettings()
@@ -228,6 +234,7 @@ namespace Circle_Tracker
                     Play100c = 0;
                     Play50c = 0;
                     PlayMissc = 0;
+                    Accuracy = 0;
                     TotalBeatmapHits = 0;
                     Time = 0;
                 }
@@ -244,7 +251,7 @@ namespace Circle_Tracker
                 RawMods = osuReader.GetMods();
                 if (RawMods != -1) // invalid
                 {
-                    Console.WriteLine(RawMods);
+                    //Console.WriteLine(RawMods);
                     Hidden     = (RawMods & 8) != 0 ? true : false;
                     Hardrock   = (RawMods & 16) != 0 ? true : false;
                     Doubletime = ((RawMods & 64) != 0 || (RawMods & 0b001001000000) != 0) ? true : false;
@@ -315,6 +322,7 @@ namespace Circle_Tracker
 
                 if (PlayDataValid(playData))
                 {
+                    Accuracy = (decimal)playData.Acc;
                     int new300c = playData.C300;
                     int new100c = playData.C100;
                     int new50c = playData.C50;
@@ -500,6 +508,10 @@ namespace Circle_Tracker
 
             SetSheetsApiReady(true);
         }
+        private void SetRawDataHeaders()
+        {
+
+        }
         private void PostBeatmapEntryToGoogleSheets()
         {
             if (!SheetsApiReady)
@@ -507,9 +519,15 @@ namespace Circle_Tracker
                 //Console.WriteLine("PostBeatmapEntryToGoogleSheets: Google Sheets API has not yet been setup.");
                 return;
             }
-            if (TotalBeatmapHits < 10) return;
-            if (Auto) return;
 
+            // duplicate post bug. Fix -> set a 5 second cooldown in between consecutive posts
+            stopwatch.Stop();
+            if (stopwatch.ElapsedMilliseconds < 5000 && stopwatch.ElapsedMilliseconds != 0)
+            {
+                Console.WriteLine($"Time elapsed between consecutive posts: {stopwatch.Elapsed}");
+                Console.WriteLine($"Duplicate post detected");
+                return;
+            }
             string dateTimeFormat = "yyyy'-'MM'-'dd h':'mm tt";
             string escapedName = BeatmapString.Replace("\"", "\"\"");
             string mods = GetModsString();
@@ -517,6 +535,7 @@ namespace Circle_Tracker
 
             var range = $"'{SheetName}'!A:J";
             var valueRange = new ValueRange();
+            string functionSeparator = UseAltFuncSeparator ? ";" : ",";
             var writeData = new List<object>() {
                 /*A: Date & Time*/ DateTime.Now.ToString(dateTimeFormat, CultureInfo.InvariantCulture),
                 /*B: Beatmap    */ $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{escapedName + mods}\")",
@@ -531,13 +550,14 @@ namespace Circle_Tracker
                 /*K: AR         */ BeatmapAr,
                 /*L: OD         */ BeatmapOd,
                 /*M: Hits       */ TotalBeatmapHits,
-                /*N: 300c       */ Play300c,
-                /*O: 100c       */ Play100c,
-                /*P: 50c        */ Play50c,
-                /*Q: Missc      */ PlayMissc,
+                /*N: Acc        */ Accuracy,
+                /*O: 300c       */ Play300c,
+                /*P: 100c       */ Play100c,
+                /*Q: 50c        */ Play50c,
+                /*R: Missc      */ PlayMissc,
                 /*R: EZ         */ EZ ? "1":"",
-                /*R: HT         */ Halftime ? "1":"",
-                /*S: FL         */ Flashlight ? "1":"",
+                /*S: HT         */ Halftime ? "1":"",
+                /*T: FL         */ Flashlight ? "1":"",
             };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
@@ -550,6 +570,7 @@ namespace Circle_Tracker
                 {
                     player.Play();
                 }
+                stopwatch.Start();
             }
         }
         void SetSheetsApiReady(bool val)

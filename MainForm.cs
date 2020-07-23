@@ -67,6 +67,7 @@ namespace Circle_Tracker
             textBoxCS.Text      = tracker.BeatmapCs.ToString("0.0");
             textBoxAR.Text      = tracker.BeatmapAr.ToString("0.0");
             textBoxOD.Text      = tracker.BeatmapOd.ToString("0.0");
+            accTextBox.Text     = tracker.Accuracy.ToString("0.00") + "%";
         }
 
         private void songsFolderTextBox_TextChanged(object sender, EventArgs e)
@@ -164,6 +165,11 @@ namespace Circle_Tracker
         private void updateFormTimer_Tick(object sender, EventArgs e)
         {
             UpdateControls();
+        }
+
+        private void altSepCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            tracker.UseAltFuncSeparator = altSepCheckBox.Checked;
         }
     }
 }
