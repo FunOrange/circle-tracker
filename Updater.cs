@@ -124,7 +124,7 @@ namespace Circle_Tracker
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Update check failed. Check for updates here: https://github.com/FunOrange/circle-tracker/releases/latest {Environment.NewLine}e.Message", "Error");
+                MessageBox.Show($"Update check failed. You have version {CURRENT_RELEASE_TAG}. Check for updates here: https://github.com/FunOrange/circle-tracker/releases/latest {Environment.NewLine}e.Message", "Error");
             }
 
             if (latestRelease.tag_name != CURRENT_RELEASE_TAG)

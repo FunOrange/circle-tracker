@@ -66,11 +66,12 @@
             this.textBoxAR = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.updateTimer = new System.Windows.Forms.Timer(this.components);
+            this.updateGameVariablesTimer = new System.Windows.Forms.Timer(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.startupCheckBox = new System.Windows.Forms.CheckBox();
-            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.button1 = new System.Windows.Forms.Button();
+            this.updateFormTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -126,7 +127,7 @@
             this.songsFolderTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.songsFolderTextBox.Location = new System.Drawing.Point(76, 6);
             this.songsFolderTextBox.Name = "songsFolderTextBox";
-            this.songsFolderTextBox.Size = new System.Drawing.Size(455, 20);
+            this.songsFolderTextBox.Size = new System.Drawing.Size(454, 20);
             this.songsFolderTextBox.TabIndex = 1;
             this.songsFolderTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -146,7 +147,7 @@
             this.beatmapTextBox.Location = new System.Drawing.Point(76, 31);
             this.beatmapTextBox.Name = "beatmapTextBox";
             this.beatmapTextBox.ReadOnly = true;
-            this.beatmapTextBox.Size = new System.Drawing.Size(455, 20);
+            this.beatmapTextBox.Size = new System.Drawing.Size(454, 20);
             this.beatmapTextBox.TabIndex = 1;
             this.beatmapTextBox.TextChanged += new System.EventHandler(this.songsFolderTextBox_TextChanged);
             // 
@@ -414,7 +415,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(537, 56);
+            this.panel1.Size = new System.Drawing.Size(536, 56);
             this.panel1.TabIndex = 5;
             // 
             // tableLayoutPanel1
@@ -433,13 +434,13 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(537, 56);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(536, 56);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // updateTimer
+            // updateGameVariablesTimer
             // 
-            this.updateTimer.Interval = 60;
-            this.updateTimer.Tick += new System.EventHandler(this.timer1_Tick);
+            this.updateGameVariablesTimer.Interval = 500;
+            this.updateGameVariablesTimer.Tick += new System.EventHandler(this.updateGameVariablesTimer_Tick);
             // 
             // startupCheckBox
             // 
@@ -452,14 +453,14 @@
             this.startupCheckBox.UseVisualStyleBackColor = true;
             this.startupCheckBox.CheckedChanged += new System.EventHandler(this.startupCheckBox_CheckedChanged);
             // 
-            // notifyIcon1
+            // notifyIcon
             // 
-            this.notifyIcon1.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
-            this.notifyIcon1.BalloonTipText = "Info";
-            this.notifyIcon1.BalloonTipTitle = "Hey";
-            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-            this.notifyIcon1.Text = "notifyIcon1";
-            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
+            this.notifyIcon.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.notifyIcon.BalloonTipText = "Info";
+            this.notifyIcon.BalloonTipTitle = "Hey";
+            this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
+            this.notifyIcon.Text = "notifyIcon1";
+            this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseDoubleClick);
             // 
             // button1
             // 
@@ -471,12 +472,17 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.MinimizeToTray);
             // 
+            // updateFormTimer
+            // 
+            this.updateFormTimer.Interval = 60;
+            this.updateFormTimer.Tick += new System.EventHandler(this.updateFormTimer_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(537, 323);
+            this.ClientSize = new System.Drawing.Size(536, 323);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.startupCheckBox);
@@ -529,7 +535,7 @@
         private System.Windows.Forms.TextBox modsTextBox;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.CheckBox soundEnabledCheckbox;
-        private System.Windows.Forms.Timer updateTimer;
+        private System.Windows.Forms.Timer updateGameVariablesTimer;
         private System.Windows.Forms.TextBox textBoxCS;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label11;
@@ -538,8 +544,9 @@
         private System.Windows.Forms.TextBox textBoxAR;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.CheckBox startupCheckBox;
-        private System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Timer updateFormTimer;
     }
 }
 

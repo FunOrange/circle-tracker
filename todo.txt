@@ -1,10 +1,15 @@
 --- BUGS ---
 [] Plays get submitted while watching replays or spectating
 [DONE] Game data doesn't get updated in multi
+[DONE] Startup directory depends on Drive C ()
 
 --- FEATURES ---
-[] Extended info (artist, song, mapper, beatmap length, )
-[] Extended info (300s, 100s, 50s)
+[] Extended info (artist, song, mapper, beatmap length)
+[] Extended info (Accuracy, Rank)
+[DONE] Extended info (300s, 100s, 50s)
 [DONE] Extended mods (EZ, FL)
+[DONE] Extended mods (HT)
+[DONE] EZ HT AR LUTs
+[DONE] EZ HT OD LUTs
 [DONE] Minimize to system tray
 [DONE] Launch on Windows startup

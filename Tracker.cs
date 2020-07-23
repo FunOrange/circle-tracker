@@ -15,6 +15,7 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Circle_Tracker
@@ -53,6 +54,7 @@ namespace Circle_Tracker
         public bool Hardrock { get; set; } = false;
         public bool Doubletime { get; set; } = false;
         public bool EZ { get; set; } = false;
+        public bool Halftime { get; set; } = false;
         public bool Flashlight { get; set; } = false;
         public bool Auto { get; set; } = false;
 
@@ -62,7 +64,15 @@ namespace Circle_Tracker
         public decimal BeatmapCs { get; private set; }
         public decimal BeatmapAr { get; private set; }
         public decimal BeatmapOd { get; private set; }
+        int cached300c = 0;
+        int cached100c = 0;
+        int cached50c = 0;
+        int cachedMissc = 0;
         int cachedHits = 0;
+        public int Play300c { get; set; } = 0;
+        public int Play100c { get; set; } = 0;
+        public int Play50c { get; set; } = 0;
+        public int PlayMissc { get; set; } = 0;
         public int TotalBeatmapHits { get; set; } = 0;
         public int Time { get; set; } = 0;
 
@@ -210,6 +220,14 @@ namespace Circle_Tracker
                     //Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
                     PostBeatmapEntryToGoogleSheets();
                     // reset game variables
+                    cached300c = 0;
+                    cached100c = 0;
+                    cached50c = 0;
+                    cachedMissc = 0;
+                    Play300c = 0;
+                    Play100c = 0;
+                    Play50c = 0;
+                    PlayMissc = 0;
                     TotalBeatmapHits = 0;
                     Time = 0;
                 }
@@ -231,29 +249,53 @@ namespace Circle_Tracker
                     Hardrock   = (RawMods & 16) != 0 ? true : false;
                     Doubletime = ((RawMods & 64) != 0 || (RawMods & 0b001001000000) != 0) ? true : false;
                     EZ         = (RawMods & 2) != 0 ? true : false;
+                    Halftime   = (RawMods & 256) != 0 ? true : false;
                     Flashlight = (RawMods & 1024) != 0 ? true : false;
                     Auto       = (RawMods & 2048) != 0 ? true : false;
                     (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
 
                     // CS AR OD
                     // FIXME: no support for HalfTime
-                    if (Doubletime && Hardrock)
+                    BeatmapCs = beatmap.CircleSize * (Hardrock ? 1.3M : EZ ? 0.5M : 1);
+                    if (Halftime && !Doubletime && !Hardrock && EZ) // HTEZ
                     {
-                        BeatmapCs = beatmap.CircleSize * 1.3M;
-                        BeatmapAr = DifficultyCalculator.CalculateARWithDTHR(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithDTHR(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHTEZ(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHTEZ(beatmap.OverallDifficulty);
                     }
-                    else if (Doubletime)
+                    else if (Halftime && !Doubletime && !Hardrock && !EZ) // HT
                     {
-                        BeatmapCs = beatmap.CircleSize;
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHT(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHT(beatmap.OverallDifficulty);
+                    }
+                    else if (Halftime && !Doubletime && Hardrock && !EZ) // HTHR
+                    {
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHTHR(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHTHR(beatmap.OverallDifficulty);
+                    }
+                    else if (!Halftime && !Doubletime && !Hardrock && EZ) // EZ
+                    {
+                        BeatmapAr = DifficultyCalculator.CalculateARWithEZ(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithEZ(beatmap.OverallDifficulty);
+                    }
+                    else if (!Halftime && !Doubletime && Hardrock && !EZ) // HR
+                    {
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHR(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHR(beatmap.OverallDifficulty);
+                    }
+                    else if (!Halftime && Doubletime && !Hardrock && EZ) // DTEZ
+                    {
+                        BeatmapAr = DifficultyCalculator.CalculateARWithDTEZ(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithDTEZ(beatmap.OverallDifficulty);
+                    }
+                    else if (!Halftime && Doubletime && !Hardrock && !EZ) // DT
+                    {
                         BeatmapAr = DifficultyCalculator.CalculateARWithDT(beatmap.ApproachRate);
                         BeatmapOd = DifficultyCalculator.CalculateODWithDT(beatmap.OverallDifficulty);
                     }
-                    else if (Hardrock)
+                    else if (!Halftime && Doubletime && Hardrock && !EZ) // DTHR
                     {
-                        BeatmapCs = beatmap.CircleSize * 1.3M;
-                        BeatmapAr = DifficultyCalculator.CalculateARWithHR(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithHR(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithDTHR(beatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithDTHR(beatmap.OverallDifficulty);
                     }
                     else // NoMod
                     {
@@ -273,12 +315,29 @@ namespace Circle_Tracker
 
                 if (PlayDataValid(playData))
                 {
+                    int new300c = playData.C300;
+                    int new100c = playData.C100;
+                    int new50c = playData.C50;
+                    int newMissc = playData.CMiss;
                     int newHits = playData.C300 + playData.C100 + playData.C50;
                     int newSongTime = osuReader.ReadPlayTime();
 
                     // update hits
+                    if (newMissc > cachedMissc)
+                    {
+                        PlayMissc += newMissc - cachedMissc;
+                    }
                     if (newHits > cachedHits && newHits - cachedHits < 5)
+                    {
+                        Play300c         += new300c - cached300c;
+                        Play100c         += new100c - cached100c;
+                        Play50c          += new50c - cached50c;
                         TotalBeatmapHits += newHits - cachedHits;
+                    }
+                    cached300c = new300c;
+                    cached100c = new100c;
+                    cached50c = new50c;
+                    cachedMissc = newMissc;
                     cachedHits = newHits;
 
                     // detect retry
@@ -287,6 +346,14 @@ namespace Circle_Tracker
                         //Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
                         PostBeatmapEntryToGoogleSheets();
                         // reset game variables
+                        cached300c = 0;
+                        cached100c = 0;
+                        cached50c = 0;
+                        cachedMissc = 0;
+                        Play300c = 0;
+                        Play100c = 0;
+                        Play50c = 0;
+                        PlayMissc = 0;
                         TotalBeatmapHits = 0;
                         Time = 0;
                     }
@@ -295,11 +362,8 @@ namespace Circle_Tracker
                         // update time
                         Time = newSongTime;
                     }
-
-
                 }
             }
-            form.UpdateControls();
         }
 
         public string GetModsString()
@@ -307,6 +371,7 @@ namespace Circle_Tracker
             string mods = "";
             if (Auto) mods += "AT";
             if (EZ) mods += "EZ";
+            if (Halftime) mods += "HT";
             if (Hidden) mods += "HD";
             if (Hardrock) mods += "HR";
             if (Doubletime) mods += "DT";
@@ -466,8 +531,13 @@ namespace Circle_Tracker
                 /*K: AR         */ BeatmapAr,
                 /*L: OD         */ BeatmapOd,
                 /*M: Hits       */ TotalBeatmapHits,
-                /*N: EZ         */ EZ ? "1":"",
-                /*O: FL         */ Flashlight ? "1":"",
+                /*N: 300c       */ Play300c,
+                /*O: 100c       */ Play100c,
+                /*P: 50c        */ Play50c,
+                /*Q: Missc      */ PlayMissc,
+                /*R: EZ         */ EZ ? "1":"",
+                /*R: HT         */ Halftime ? "1":"",
+                /*S: FL         */ Flashlight ? "1":"",
             };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);

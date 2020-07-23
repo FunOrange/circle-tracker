@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using IWshRuntimeLibrary;
+using System.Threading.Tasks;
 
 namespace Circle_Tracker
 {
@@ -16,11 +17,13 @@ namespace Circle_Tracker
     {
         private readonly Tracker tracker;
         private bool MinimizeToTrayEnabled = true;
+        private string ShortcutAddress;
         public MainForm()
         {
             Directory.SetCurrentDirectory(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
             InitializeComponent();
             //this.Icon = Properties.Resources.iconbars;
+            ShortcutAddress = Environment.GetEnvironmentVariable("appdata") + @"\Microsoft\Windows\Start Menu\Programs\Startup" + @"\circle-tracker.lnk";
             startupCheckBox.Checked = ShortcutExists();
 
             try
@@ -41,7 +44,8 @@ namespace Circle_Tracker
 
             tracker.InitGoogleAPI(silent:true);
             SetCredentialsFound(System.IO.File.Exists("credentials.json"));
-            updateTimer.Start();
+            updateGameVariablesTimer.Start();
+            updateFormTimer.Start();
         }
 
         public void SetCredentialsFound(bool found)
@@ -53,7 +57,7 @@ namespace Circle_Tracker
         public void UpdateControls()
         {
             groupBox2.BackColor = (tracker.SheetsApiReady && tracker.GameState == OsuMemoryStatus.Playing) ? Color.FromArgb(214, 241, 216) : SystemColors.Control;
-            hitsTextBox.Text    = tracker.TotalBeatmapHits.ToString();
+            hitsTextBox.Text    = tracker.TotalBeatmapHits.ToString() + $" ({tracker.Play300c}, {tracker.Play100c}, {tracker.Play50c}, {tracker.PlayMissc})";
             timeTextBox.Text    = tracker.Time.ToString();
             beatmapTextBox.Text = tracker.BeatmapString;
             starsTextBox.Text   = tracker.BeatmapStars.ToString("0.00");
@@ -96,11 +100,11 @@ namespace Circle_Tracker
             tracker.SubmitSoundEnabled = soundEnabledCheckbox.Checked;
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private async void updateGameVariablesTimer_Tick(object sender, EventArgs e)
         {
             try
             {
-                tracker.Tick();
+                await Task.Run(() => tracker.Tick());
             }
             catch (Exception ex)
             {
@@ -123,11 +127,11 @@ namespace Circle_Tracker
             }
         }
 
-        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
              Show();
              this.WindowState = FormWindowState.Normal;
-             notifyIcon1.Visible = false;
+             notifyIcon.Visible = false;
         }
 
         private void MinimizeToTray(object sender, EventArgs e)
@@ -135,15 +139,14 @@ namespace Circle_Tracker
             if (MinimizeToTrayEnabled)
             {
                 Hide();
-                notifyIcon1.Visible = true;
+                notifyIcon.Visible = true;
             }
         }
         private void CreateShortcut()
         {
             object shDesktop = (object)"Desktop";
             WshShell shell = new WshShell();
-            string shortcutAddress = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" + @"\circle-tracker.lnk";
-            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(ShortcutAddress);
             shortcut.Description = "Circle Tracker (startup shortcut)";
             shortcut.Hotkey = "";
             shortcut.TargetPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -151,15 +154,16 @@ namespace Circle_Tracker
         }
         private void DeleteShortcut()
         {
-            string shortcutAddress = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" + @"\circle-tracker.lnk";
-            System.IO.File.Delete(shortcutAddress);
+            System.IO.File.Delete(ShortcutAddress);
         }
         private bool ShortcutExists()
         {
-            string shortcutAddress = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" + @"\circle-tracker.lnk";
-            return System.IO.File.Exists(shortcutAddress);
+            return System.IO.File.Exists(ShortcutAddress);
         }
 
-
+        private void updateFormTimer_Tick(object sender, EventArgs e)
+        {
+            UpdateControls();
+        }
     }
 }
