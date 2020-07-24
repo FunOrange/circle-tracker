@@ -6,8 +6,8 @@
 
 --- FEATURES ---
 [] Extended info (artist, song, mapper, beatmap length)
-[] Automatically update Named Ranges
-[] Add new circle tracker logo
+[DONE] Automatically update Named Ranges
+[DONE] Add new circle tracker logo
 [DONE] Automatically update raw data headers
 [DONE] Option to use semicolons instead of commas for function formulas
 [DONE] Extended info (Accuracy, Rank)
