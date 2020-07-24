@@ -49,7 +49,8 @@ namespace Circle_Tracker
             ("Miss", "misses"),
             ("EZ", "EZ"),
             ("HT", "HT"),
-            ("FL", "FL")
+            ("FL", "FL"),
+            ("Map Complete", "complete")
         };
 
         // Beatmap
@@ -251,7 +252,8 @@ namespace Circle_Tracker
                 if (GameState == OsuMemoryStatus.Playing && newGameState != OsuMemoryStatus.Playing) // beatmap quit
                 {
                     //Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
-                    PostBeatmapEntryToGoogleSheets();
+                    bool beatmapCompleted = newGameState == OsuMemoryStatus.ResultsScreen;
+                    PostBeatmapEntryToGoogleSheets(beatmapCompleted);
                     // reset game variables
                     cached300c = 0;
                     cached100c = 0;
@@ -379,7 +381,7 @@ namespace Circle_Tracker
                     if (newSongTime < Time && Time > 0)
                     {
                         //Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
-                        PostBeatmapEntryToGoogleSheets();
+                        PostBeatmapEntryToGoogleSheets(false);
                         // reset game variables
                         cached300c = 0;
                         cached100c = 0;
@@ -603,7 +605,7 @@ namespace Circle_Tracker
             }
             SetSheetsApiReady(true);
         }
-        private void PostBeatmapEntryToGoogleSheets()
+        private void PostBeatmapEntryToGoogleSheets(bool complete)
         {
             if (!SheetsApiReady)
             {
@@ -656,6 +658,7 @@ namespace Circle_Tracker
                 /*R: EZ         */ EZ ? "1":"",
                 /*S: HT         */ Halftime ? "1":"",
                 /*T: FL         */ Flashlight ? "1":"",
+                /*U: complete   */ complete ? "1":"0",
             };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
