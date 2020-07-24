@@ -499,6 +499,35 @@ namespace Circle_Tracker
                 ApplicationName = ApplicationName
             });
 
+            // Get entire Spreadsheet
+            var getSheetRequest = GoogleSheetsService.Spreadsheets.Get(SpreadsheetId);
+            Spreadsheet spreadsheet;
+            try
+            {
+                spreadsheet = getSheetRequest.Execute();
+            }
+            catch (GoogleApiException e)
+            {
+                if (!silent)
+                    MessageBox.Show(e.Message, "Google Sheets API Error");
+                SetSheetsApiReady(false);
+                return;
+            }
+
+            // Get Raw Data sheet
+            Sheet rawDataSheet = null;
+            try
+            {
+                rawDataSheet = spreadsheet.Sheets.First((shit) => shit.Properties.Title == SheetName);
+            }
+            catch (Exception e)
+            {
+                if (!silent)
+                    MessageBox.Show($"No sheet with the name {SheetName} found.");
+                SetSheetsApiReady(false);
+                return;
+            }
+
             // Try to set the headers to check if we can successfully write data
             var range = $"'{SheetName}'!A1:1";
             var valueRange = new ValueRange();
@@ -527,50 +556,11 @@ namespace Circle_Tracker
                 SetSheetsApiReady(false);
                 return;
             }
-            catch (Exception e)
-            {
-                if (!silent)
-                {
-                    MessageBox.Show(e.Message, "Error");
-                }
-                SetSheetsApiReady(false);
-                return;
-            }
-
-            var getSheetRequest = GoogleSheetsService.Spreadsheets.Get(SpreadsheetId);
-            Spreadsheet spreadsheet;
-            try
-            {
-                spreadsheet = getSheetRequest.Execute();
-            }
-            catch (GoogleApiException e)
-            {
-                if (!silent)
-                    MessageBox.Show(e.Message, "Google Sheets API Error");
-                SetSheetsApiReady(false);
-                return;
-            }
-
-            // Get row count
-            int rowCount;
-            Sheet sheet = null;
-            try
-            {
-                sheet = spreadsheet.Sheets.First((shit) => shit.Properties.Title == SheetName);
-                rowCount = (int)sheet.Properties.GridProperties.RowCount;
-            }
-            catch (Exception e)
-            {
-                if (!silent)
-                    MessageBox.Show($"No sheet with the name {SheetName} found.");
-                SetSheetsApiReady(false);
-                return;
-            }
 
             // Try to add in any missing named ranges
             var namedRanges    = DataRanges.Select(x => x.Item2).ToList();
             var existingRanges = spreadsheet.NamedRanges.Select((namedRange) => namedRange.Name).ToList();
-            List<Request> updateNamedRangeRequests = new List<Request>();;
+            List<Request> addMissingRangeRequests = new List<Request>();;
             for (int i = 0; i < namedRanges.Count; i++)
             {
                 if (!existingRanges.Contains(namedRanges[i]))
@@ -582,29 +572,35 @@ namespace Circle_Tracker
                     req.AddNamedRange.NamedRange = new NamedRange();
                     req.AddNamedRange.NamedRange.Name = namedRanges[i];
                     req.AddNamedRange.NamedRange.Range = new GridRange();
-                    req.AddNamedRange.NamedRange.Range.SheetId = sheet.Properties.SheetId;
+                    req.AddNamedRange.NamedRange.Range.SheetId = rawDataSheet.Properties.SheetId;
                     req.AddNamedRange.NamedRange.Range.StartColumnIndex = i;
                     req.AddNamedRange.NamedRange.Range.EndColumnIndex = i + 1;
                     req.AddNamedRange.NamedRange.Range.StartRowIndex = 1;
-                    req.AddNamedRange.NamedRange.Range.EndRowIndex = rowCount;
-                    updateNamedRangeRequests.Add(req);
+                    req.AddNamedRange.NamedRange.Range.EndRowIndex = rawDataSheet.Properties.GridProperties.RowCount;
+                    addMissingRangeRequests.Add(req);
                 }
             }
-            var updateNamedRangeRequest = new BatchUpdateSpreadsheetRequest();
-            updateNamedRangeRequest.Requests = updateNamedRangeRequests;
-            SpreadsheetsResource.BatchUpdateRequest batchRequest = GoogleSheetsService.Spreadsheets.BatchUpdate(updateNamedRangeRequest, SpreadsheetId);
-            try
+            var reqs = new BatchUpdateSpreadsheetRequest();
+            reqs.Requests = addMissingRangeRequests;
+            SpreadsheetsResource.BatchUpdateRequest batchRequest = GoogleSheetsService.Spreadsheets.BatchUpdate(reqs, SpreadsheetId);
+            if (addMissingRangeRequests.Count > 0)
             {
-                batchRequest.Execute();
-            }
-            catch (GoogleApiException e)
-            {
-                if (!silent)
-                    MessageBox.Show(e.Message, "Google Sheets API Error");
-                SetSheetsApiReady(false);
-                return;
-            }
+                try
+                {
+                    batchRequest.Execute();
+                    string message = $"The following Named Ranges have been added to your spreadsheet:{Environment.NewLine}{Environment.NewLine}";
+                    message += String.Join(Environment.NewLine, addMissingRangeRequests.Select(r => $"・{r.AddNamedRange.NamedRange.Name}"));
+                    MessageBox.Show(message, "Congratulations");
+                }
+                catch (GoogleApiException e)
+                {
+                    if (!silent)
+                        MessageBox.Show(e.Message, "Google Sheets API Error");
+                    SetSheetsApiReady(false);
+                    return;
+                }
 
+            }
             SetSheetsApiReady(true);
         }
         private void PostBeatmapEntryToGoogleSheets()
