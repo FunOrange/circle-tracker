@@ -1,7 +1,6 @@
 --- BUGS ---
 [] Plays get submitted while watching replays or spectating
-[] Improper star rating with EZ, HT
-[] Check proper bpm with HT, DT, NC
+[DONE] Check proper bpm with HT, DT, NC
 [DONE] Game data doesn't get updated in multi
 [DONE] Startup directory depends on Drive C ()
 
