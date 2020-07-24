@@ -494,6 +494,10 @@ namespace Circle_Tracker
                     {
                         MessageBox.Show("Try checking if you entered the correct thing for sheet name. Sheet name refers to the name of a 'tab' in the spreadsheet, not the name of the entire spreadsheet");
                     }
+                    if (e.Message.Contains("Requested entity was not found"))
+                    {
+                        MessageBox.Show("Try double checking to see if the Spreadsheet ID is correct.");
+                    }
                 }
                 SetSheetsApiReady(false);
                 return;
