@@ -24,7 +24,14 @@ namespace Circle_Tracker
             InitializeComponent();
             //this.Icon = Properties.Resources.iconbars;
             ShortcutAddress = Environment.GetEnvironmentVariable("appdata") + @"\Microsoft\Windows\Start Menu\Programs\Startup" + @"\circle-tracker.lnk";
-            startupCheckBox.Checked = ShortcutExists();
+            bool shortcutExists = ShortcutExists();
+            startupCheckBox.Checked = shortcutExists;
+            if (shortcutExists)
+            {
+                // overwrite the existing shortcut just in it's an older version
+                DeleteShortcut();
+                CreateShortcut();
+            }
 
             try
             {

@@ -1,12 +1,16 @@
 --- BUGS ---
 [] Plays get submitted while watching replays or spectating
+[] Improper star rating with EZ, HT
+[] Check proper bpm with HT, DT, NC
 [DONE] Game data doesn't get updated in multi
 [DONE] Startup directory depends on Drive C ()
 
 --- FEATURES ---
 [] Extended info (artist, song, mapper, beatmap length)
-[] Automatically fix raw data headers
-[] Option to use semicolons instead of commas for function formulas
+[] Automatically update Named Ranges
+[] Add new circle tracker logo
+[DONE] Automatically update raw data headers
+[DONE] Option to use semicolons instead of commas for function formulas
 [DONE] Extended info (Accuracy, Rank)
 [DONE] Extended info (300s, 100s, 50s)
 [DONE] Extended mods (EZ, FL)

@@ -45,7 +45,7 @@ namespace Circle_Tracker
         public int BeatmapBpm { get; set; }
 
         // Sound
-        private string soundFilename = "sectionpass.wav";
+        private string soundFilename;
         public bool SubmitSoundEnabled { get; set; }
 
         // game variables
@@ -112,6 +112,8 @@ namespace Circle_Tracker
             int _;
             GameState = osuReader.GetCurrentStatus(out _);
             stopwatch = new Stopwatch();
+            soundFilename = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\sectionpass.wav";
+
         }
 
         private void SaveSettings()
@@ -522,8 +524,13 @@ namespace Circle_Tracker
             {
                 Console.WriteLine($"Time elapsed between consecutive posts: {stopwatch.Elapsed}");
                 Console.WriteLine($"Duplicate post detected");
+                stopwatch.Reset();
                 return;
             }
+            stopwatch.Reset();
+
+            // minimum hits to submit
+            if (TotalBeatmapHits < 20) return;
 
 
             string dateTimeFormat = "yyyy'-'MM'-'dd h':'mm tt";
@@ -564,11 +571,16 @@ namespace Circle_Tracker
             bool success = (appendResponse.Updates.UpdatedRows == 1);
             if (success && SubmitSoundEnabled)
             {
+                Console.WriteLine(soundFilename);
                 using (SoundPlayer player = new SoundPlayer(soundFilename))
                 {
                     player.Play();
                 }
                 stopwatch.Start();
+            }
+            else
+            {
+                Console.WriteLine("submit error");
             }
         }
         void SetSheetsApiReady(bool val)
