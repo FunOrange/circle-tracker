@@ -116,10 +116,20 @@ namespace Circle_Tracker
             }
             catch (Exception ex)
             {
+                using (StreamWriter outputFile = new StreamWriter(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "errorlog.txt")))
+                {
+                    outputFile.WriteLine("-------------------");
+                    outputFile.WriteLine(DateTime.Now);
+                    outputFile.WriteLine("-------------------");
+                    outputFile.WriteLine(ex.ToString());
+                    outputFile.WriteLine("");
+                    outputFile.WriteLine("");
+                }
                 MessageBox.Show($"Exception occurred: {Environment.NewLine}{Environment.NewLine}" +
-                    $"{ex.Message}{Environment.NewLine}{Environment.NewLine}" +
-                    $"Please tell FunOrange about this."
+                    $"{ex.ToString()}{Environment.NewLine}{Environment.NewLine}"
                     , "Error");
+                MessageBox.Show($"Please send errorlog.txt to FunOrange. This file is located inside the circle tracker folder.");
+                updateGameVariablesTimer.Stop();
             }
         }
 

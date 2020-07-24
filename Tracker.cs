@@ -106,7 +106,8 @@ namespace Circle_Tracker
         public int Time { get; set; } = 0;
 
         // Google Sheets API
-        Stopwatch stopwatch;
+        private DateTime LastPostTime { get; set; }
+        private bool GoogleSheetsAPILock { get; set; } = false;
         public bool SheetsApiReady { get; set; } = false;
         public bool UseAltFuncSeparator { get; set; } = false;
         private string spreadsheetId;
@@ -137,9 +138,8 @@ namespace Circle_Tracker
             osuReader = OsuMemoryReader.Instance.GetInstanceForWindowTitleHint("");
             int _;
             GameState = osuReader.GetCurrentStatus(out _);
-            stopwatch = new Stopwatch();
             soundFilename = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\sectionpass.wav";
-
+            LastPostTime = DateTime.Now;
         }
 
         private void SaveSettings()
@@ -253,7 +253,7 @@ namespace Circle_Tracker
                 {
                     //Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
                     bool beatmapCompleted = newGameState == OsuMemoryStatus.ResultsScreen;
-                    PostBeatmapEntryToGoogleSheets(beatmapCompleted);
+                    PostBeatmapEntryToGoogleSheetsWrapper(beatmapCompleted);
                     // reset game variables
                     cached300c = 0;
                     cached100c = 0;
@@ -381,7 +381,7 @@ namespace Circle_Tracker
                     if (newSongTime < Time && Time > 0)
                     {
                         //Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
-                        PostBeatmapEntryToGoogleSheets(false);
+                        PostBeatmapEntryToGoogleSheetsWrapper(false);
                         // reset game variables
                         cached300c = 0;
                         cached100c = 0;
@@ -605,6 +605,20 @@ namespace Circle_Tracker
             }
             SetSheetsApiReady(true);
         }
+
+        private void PostBeatmapEntryToGoogleSheetsWrapper(bool complete)
+        {
+            //Console.WriteLine(new System.Diagnostics.StackTrace());
+            //Console.WriteLine("google sheets api access: " + DateTime.Now);
+            if (GoogleSheetsAPILock)
+            {
+                //Console.WriteLine("duplicate call detected");
+                return;
+            }
+            GoogleSheetsAPILock = true; // acquire lock
+            PostBeatmapEntryToGoogleSheets(complete);
+            GoogleSheetsAPILock = false; // release lock
+        }
         private void PostBeatmapEntryToGoogleSheets(bool complete)
         {
             if (!SheetsApiReady)
@@ -614,18 +628,12 @@ namespace Circle_Tracker
             }
 
             // duplicate post bug. Fix -> set a 5 second cooldown in between consecutive posts
-            stopwatch.Stop();
-            if (stopwatch.ElapsedMilliseconds < 5000 && stopwatch.ElapsedMilliseconds != 0)
-            {
-                Console.WriteLine($"Time elapsed between consecutive posts: {stopwatch.Elapsed}");
-                Console.WriteLine($"Duplicate post detected");
-                stopwatch.Reset();
+            var timeSinceLastPost = DateTime.Now.Subtract(LastPostTime);
+            if (timeSinceLastPost.TotalSeconds < 5)
                 return;
-            }
-            stopwatch.Reset();
 
             // minimum hits to submit
-            if (TotalBeatmapHits < 20) return;
+            if (TotalBeatmapHits < 10) return;
 
 
             string dateTimeFormat = "yyyy'-'MM'-'dd h':'mm tt";
@@ -665,14 +673,16 @@ namespace Circle_Tracker
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
             var appendResponse = appendRequest.Execute();
             bool success = (appendResponse.Updates.UpdatedRows == 1);
-            if (success && SubmitSoundEnabled)
+            if (success)
             {
-                Console.WriteLine(soundFilename);
-                using (SoundPlayer player = new SoundPlayer(soundFilename))
+                LastPostTime = DateTime.Now;
+                if (SubmitSoundEnabled)
                 {
-                    player.Play();
+                    using (SoundPlayer player = new SoundPlayer(soundFilename))
+                    {
+                        player.Play();
+                    }
                 }
-                stopwatch.Start();
             }
             else
             {
