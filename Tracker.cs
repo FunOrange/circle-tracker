@@ -547,7 +547,7 @@ namespace Circle_Tracker
                 /*C: Hidden     */ Hidden ? "1":"",
                 /*D: Hardrock   */ Hardrock ? "1":"",
                 /*E: Doubletime */ Doubletime ? "1":"",
-                /*F: BPM        */ Doubletime ? (1.5M * BeatmapBpm) : BeatmapBpm,
+                /*F: BPM        */ BeatmapBpm * (Doubletime ? 1.5M : Halftime ? 0.75M : 1),
                 /*G: Aim        */ BeatmapAim,
                 /*H: Speed      */ BeatmapSpeed,
                 /*I: Stars      */ BeatmapStars,
