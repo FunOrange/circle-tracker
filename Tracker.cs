@@ -208,17 +208,20 @@ namespace Circle_Tracker
             string beatmapPathTemp = "";
             try
             {
-                BeatmapPath = Path.Combine(SongsFolder, osuReader.GetMapFolderName(), osuReader.GetOsuFileName());
+                beatmapPathTemp = Path.Combine(SongsFolder, osuReader.GetMapFolderName(), osuReader.GetOsuFileName());
             }
             catch
             {
                 return false;
             }
 
-            if (!File.Exists(BeatmapPath))
+            if (!File.Exists(beatmapPathTemp))
                 return false;
 
-            string versionLine = File.ReadLines(BeatmapPath).First();
+            if (beatmapPathTemp == "")
+                return false;
+
+            string versionLine = File.ReadLines(beatmapPathTemp).First();
             Match m = Regex.Match(versionLine, @"osu file format v(\d+)");
             if (!m.Success)
                 return false;

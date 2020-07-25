@@ -110,6 +110,9 @@ namespace Circle_Tracker
 
         private async void updateGameVariablesTimer_Tick(object sender, EventArgs e)
         {
+#if DEBUG
+            await Task.Run(() => tracker.Tick());
+#else
             try
             {
                 await Task.Run(() => tracker.Tick());
@@ -131,6 +134,7 @@ namespace Circle_Tracker
                     , "Error");
                 MessageBox.Show($"Please send errorlog.txt to FunOrange. This file is located inside the circle tracker folder.");
             }
+#endif
         }
 
         private void startupCheckBox_CheckedChanged(object sender, EventArgs e)
