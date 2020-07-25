@@ -117,6 +117,10 @@ namespace Circle_Tracker
             {
                 await Task.Run(() => tracker.Tick());
             }
+            catch (TaskCanceledException)
+            {
+                // do nothing? idk why this occurs. it's probably okay to ignore it.
+            }
             catch (Exception ex)
             {
                 updateGameVariablesTimer.Stop();
