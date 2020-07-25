@@ -246,10 +246,7 @@ namespace Circle_Tracker
             string beatmapFilename = osuReader.GetOsuFileName();
             if (beatmapFilename != Path.GetFileName(BeatmapPath) && beatmapFilename != "")
             {
-                if (!TrySwitchBeatmap())
-                {
-                    BeatmapString = "???";
-                }
+                TrySwitchBeatmap();
             }
 
             // gameplay stuff
@@ -625,7 +622,14 @@ namespace Circle_Tracker
                 return;
             }
             GoogleSheetsAPILock = true; // acquire lock
-            PostBeatmapEntryToGoogleSheets(complete);
+            try
+            {
+                PostBeatmapEntryToGoogleSheets(complete);
+            }
+            catch (NullReferenceException e)
+            {
+                // Game variable probably wasn't loaded or read (blame OsuMemoryDataProvider)
+            }
             GoogleSheetsAPILock = false; // release lock
         }
         private void PostBeatmapEntryToGoogleSheets(bool complete)
@@ -643,7 +647,6 @@ namespace Circle_Tracker
 
             // minimum hits to submit
             if (TotalBeatmapHits < 10) return;
-
 
             string dateTimeFormat = "yyyy'-'MM'-'dd h':'mm tt";
             string escapedName = BeatmapString.Replace("\"", "\"\"");
