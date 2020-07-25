@@ -206,5 +206,10 @@ namespace Circle_Tracker
         {
             tracker.UseAltFuncSeparator = altSepCheckBox.Checked;
         }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            tracker.SaveSettings();
+        }
     }
 }

@@ -3,14 +3,15 @@
 [DONE] Check proper bpm with HT, DT, NC
 [DONE] Game data doesn't get updated in multi
 [DONE] Startup directory depends on Drive C ()
-[] Fix 0 bpm bug once and for all
-[] Add new logo to notification tray icon
+[DONE] Fix 0 bpm bug once and for all
+[DONE] Add new logo to notification tray icon
 [] Show message if mismatch between system timezone and spreadsheet timezone
 
 --- FEATURES ---
 [] Extended info (artist, song, mapper, beatmap length)
 [] Add welcome message pointing to youtube tutorial
 [] Detect multiple instances running
+[] Add playcount
 [DONE] Automatically update Named Ranges
 [DONE] Add new circle tracker logo
 [DONE] Automatically update raw data headers

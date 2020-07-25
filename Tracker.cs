@@ -54,15 +54,7 @@ namespace Circle_Tracker
         };
 
         // Beatmap
-        private string songsFolder;
-        public string SongsFolder {
-            get => songsFolder;
-            set
-            {
-                songsFolder = value;
-                SaveSettings();
-            }
-        }
+        public string SongsFolder { get; set; }
         private Beatmap beatmap;
         public string BeatmapPath { get; set; }
         public int BeatmapID { get; set; }
@@ -108,27 +100,11 @@ namespace Circle_Tracker
         // Google Sheets API
         private DateTime LastPostTime { get; set; }
         private bool GoogleSheetsAPILock { get; set; } = false;
+        private bool SpreadsheetTimezoneVerified { get; set; } = false;
         public bool SheetsApiReady { get; set; } = false;
         public bool UseAltFuncSeparator { get; set; } = false;
-        private string spreadsheetId;
-        public string SpreadsheetId {
-            get => spreadsheetId;
-            set
-            {
-                spreadsheetId = value;
-                SaveSettings();
-            }
-        }
-        private string sheetName;
-        public string SheetName
-        {
-            get => sheetName;
-            set
-            {
-                sheetName = value;
-                SaveSettings();
-            }
-        }
+        public string SpreadsheetId { get; set; }
+        public string SheetName { get; set; }
         SheetsService GoogleSheetsService;
 
         public Tracker(MainForm f)
@@ -142,35 +118,40 @@ namespace Circle_Tracker
             LastPostTime = DateTime.Now;
         }
 
-        private void SaveSettings()
+        public void SaveSettings()
         {
-            string[] lines = { SongsFolder, SpreadsheetId, SheetName, SubmitSoundEnabled ? "1" : "0"};
+            string[] lines = {
+                SongsFolder,
+                SpreadsheetId,
+                SheetName,
+                SubmitSoundEnabled ? "1" : "0",
+                SpreadsheetTimezoneVerified ? "1" : "0"
+            };
             File.WriteAllLines("user_settings.txt", lines, Encoding.UTF8);
         }
         private void LoadSettings()
         {
-            if (!File.Exists("user_settings.txt"))
-            {
-                SongsFolder = "";
-                SpreadsheetId = "";
-                SheetName = "Raw Data";
-                SubmitSoundEnabled = true;
-            }
-            else
+            // Defaults
+            SongsFolder = "";
+            SpreadsheetId = "";
+            SheetName = "Raw Data";
+            SubmitSoundEnabled = true;
+            SpreadsheetTimezoneVerified = false;
+
+            // Load Settings
+            if (File.Exists("user_settings.txt"))
             {
                 var lines = File.ReadAllLines("user_settings.txt");
-                if (lines.Length == 4) {
-                    SongsFolder = lines[0];
-                    SpreadsheetId = lines[1];
-                    SheetName = lines[2];
-                    SubmitSoundEnabled = lines[3] == "1";
-                }
-                else
+                for (int i = 0; i < lines.Length; i++)
                 {
-                    SongsFolder = "";
-                    SpreadsheetId = "";
-                    SheetName = "Raw Data";
-                    SubmitSoundEnabled = true;
+                    switch (i)
+                    {
+                        case 0: SongsFolder                 = lines[0];        break;
+                        case 1: SpreadsheetId               = lines[1];        break;
+                        case 2: SheetName                   = lines[2];        break;
+                        case 3: SubmitSoundEnabled          = lines[3] == "1"; break;
+                        case 4: SpreadsheetTimezoneVerified = lines[4] == "1"; break;
+                    }
                 }
             }
         }
@@ -609,6 +590,25 @@ namespace Circle_Tracker
                 }
 
             }
+
+            // Prompt correct timezone
+            if (!SpreadsheetTimezoneVerified)
+            {
+                var response = MessageBox.Show($"Your spreadsheet timezone is set to {spreadsheet.Properties.TimeZone}.{Environment.NewLine}{Environment.NewLine}" +
+                    "Is this correct?",
+                    "Confirm Timezone",
+                    MessageBoxButtons.YesNo);
+                if (response == DialogResult.Yes)
+                {
+                    SpreadsheetTimezoneVerified = true;
+                    MessageBox.Show("cool", "Cool");
+                }
+                else
+                {
+                    MessageBox.Show("Please change this in your spreadsheet. Go to File > Spreadsheet Settings and then change the timezone there.");
+                }
+            }
+            
             SetSheetsApiReady(true);
         }
 

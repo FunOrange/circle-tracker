@@ -35,7 +35,7 @@ let removeTimingPointComments (objs:list<TimingPoint>) = (List.filter isNotTimin
 let tryParseTimingPoint line : TimingPoint option = 
 
     let values = parseCsv line
-    printfn "Parsing timing point: '%A'" values
+    //printfn "Parsing timing point: '%A'" values
     match values with
     | [Decimal t; Decimal bl; Int m; Int ss; Int si; Int v; Bool ui; Int fx] ->
         //printfn "%s" line
@@ -66,7 +66,7 @@ let tryParseTimingPoint line : TimingPoint option =
             effects     = 0;
         }))
     | _ ->
-        printfn "Unrecognized timing point: '%s'" line
+        //printfn "Unrecognized timing point: '%s'" line
         Some(Comment(line))
 
 let timingPointToString tp = 

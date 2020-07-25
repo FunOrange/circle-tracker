@@ -61,7 +61,9 @@
             this.textBoxCS = new System.Windows.Forms.TextBox();
             this.accLabel = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.bpmTextBox = new System.Windows.Forms.TextBox();
             this.textBoxOD = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
@@ -75,8 +77,6 @@
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.updateFormTimer = new System.Windows.Forms.Timer(this.components);
-            this.bpmTextBox = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -396,6 +396,15 @@
             this.label12.TabIndex = 0;
             this.label12.Text = "AR";
             // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(125, 134);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(27, 13);
+            this.label13.TabIndex = 0;
+            this.label13.Text = "bpm";
+            // 
             // label11
             // 
             this.label11.AutoSize = true;
@@ -404,6 +413,14 @@
             this.label11.Size = new System.Drawing.Size(23, 13);
             this.label11.TabIndex = 0;
             this.label11.Text = "OD";
+            // 
+            // bpmTextBox
+            // 
+            this.bpmTextBox.Location = new System.Drawing.Point(159, 131);
+            this.bpmTextBox.Name = "bpmTextBox";
+            this.bpmTextBox.ReadOnly = true;
+            this.bpmTextBox.Size = new System.Drawing.Size(39, 20);
+            this.bpmTextBox.TabIndex = 1;
             // 
             // textBoxOD
             // 
@@ -515,23 +532,6 @@
             this.updateFormTimer.Interval = 60;
             this.updateFormTimer.Tick += new System.EventHandler(this.updateFormTimer_Tick);
             // 
-            // bpmTextBox
-            // 
-            this.bpmTextBox.Location = new System.Drawing.Point(159, 131);
-            this.bpmTextBox.Name = "bpmTextBox";
-            this.bpmTextBox.ReadOnly = true;
-            this.bpmTextBox.Size = new System.Drawing.Size(39, 20);
-            this.bpmTextBox.TabIndex = 1;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(125, 134);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(27, 13);
-            this.label13.TabIndex = 0;
-            this.label13.Text = "bpm";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -546,6 +546,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Circle Tracker";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
