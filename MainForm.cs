@@ -133,6 +133,7 @@ namespace Circle_Tracker
                     $"{ex.ToString()}{Environment.NewLine}{Environment.NewLine}"
                     , "Error");
                 MessageBox.Show($"Please send errorlog.txt to FunOrange. This file is located inside the circle tracker folder.");
+                updateGameVariablesTimer.Start();
             }
 #endif
         }
