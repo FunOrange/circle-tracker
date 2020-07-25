@@ -126,14 +126,10 @@ let parseSections (sections: list<list<string>> ) =
         
 let parseBeatmapFile filename =
     //printfn "################################################"
-    //printfn "################################################"
-    //printfn "################################################"
     //printfn ""
     //printfn "Parsing file:"
     //printfn "%s" filename
     //printfn ""
-    //printfn "################################################"
-    //printfn "################################################"
     //printfn "################################################"
 
     File.ReadAllLines filename

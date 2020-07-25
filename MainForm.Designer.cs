@@ -75,6 +75,8 @@
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.updateFormTimer = new System.Windows.Forms.Timer(this.components);
+            this.bpmTextBox = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -112,7 +114,7 @@
             this.timeTextBox.Location = new System.Drawing.Point(54, 131);
             this.timeTextBox.Name = "timeTextBox";
             this.timeTextBox.ReadOnly = true;
-            this.timeTextBox.Size = new System.Drawing.Size(100, 20);
+            this.timeTextBox.Size = new System.Drawing.Size(64, 20);
             this.timeTextBox.TabIndex = 1;
             // 
             // label3
@@ -339,8 +341,10 @@
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Controls.Add(this.label12);
             this.groupBox2.Controls.Add(this.aimLabel);
+            this.groupBox2.Controls.Add(this.label13);
             this.groupBox2.Controls.Add(this.label11);
             this.groupBox2.Controls.Add(this.speedLabel);
+            this.groupBox2.Controls.Add(this.bpmTextBox);
             this.groupBox2.Controls.Add(this.textBoxOD);
             this.groupBox2.Controls.Add(this.speedTextBox);
             this.groupBox2.Controls.Add(this.label10);
@@ -511,6 +515,23 @@
             this.updateFormTimer.Interval = 60;
             this.updateFormTimer.Tick += new System.EventHandler(this.updateFormTimer_Tick);
             // 
+            // bpmTextBox
+            // 
+            this.bpmTextBox.Location = new System.Drawing.Point(159, 131);
+            this.bpmTextBox.Name = "bpmTextBox";
+            this.bpmTextBox.ReadOnly = true;
+            this.bpmTextBox.Size = new System.Drawing.Size(39, 20);
+            this.bpmTextBox.TabIndex = 1;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(125, 134);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(27, 13);
+            this.label13.TabIndex = 0;
+            this.label13.Text = "bpm";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -584,6 +605,8 @@
         private System.Windows.Forms.Label accLabel;
         private System.Windows.Forms.TextBox accTextBox;
         private System.Windows.Forms.CheckBox altSepCheckBox;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox bpmTextBox;
     }
 }
 

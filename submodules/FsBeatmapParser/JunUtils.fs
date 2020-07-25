@@ -2,6 +2,7 @@
 
 open System
 open System.Text.RegularExpressions
+open System.Globalization
 
 let tryParseWith (tryParseFunc: string -> bool * _) = tryParseFunc >> function
     | true, v    -> Some v
@@ -12,9 +13,9 @@ let isTypeOf (tryParseFunc: string -> bool * _) = tryParseFunc >> function
     | false, _ -> false
 
 let tryParseInt     = tryParseWith System.Int32.TryParse
-let tryParseSingle  = tryParseWith System.Single.TryParse
-let tryParseDouble  = tryParseWith System.Double.TryParse
-let tryParseDecimal = tryParseWith System.Decimal.TryParse
+let tryParseSingle  = tryParseWith (fun num -> System.Single.TryParse(num, NumberStyles.AllowDecimalPoint ||| NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture) )
+let tryParseDouble  = tryParseWith (fun num -> System.Double.TryParse(num, NumberStyles.AllowDecimalPoint ||| NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture) )
+let tryParseDecimal = tryParseWith (fun num -> System.Decimal.TryParse(num, NumberStyles.AllowDecimalPoint ||| NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture) )
 let tryParseBool input =
     match input with
     | "true" -> Some(true)

@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows.Forms;
 using IWshRuntimeLibrary;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Circle_Tracker
 {
@@ -75,6 +76,7 @@ namespace Circle_Tracker
             textBoxAR.Text      = tracker.BeatmapAr.ToString("0.0");
             textBoxOD.Text      = tracker.BeatmapOd.ToString("0.0");
             accTextBox.Text     = tracker.Accuracy.ToString("0.00") + "%";
+            bpmTextBox.Text     = tracker.BeatmapBpm.ToString();
         }
 
         private void songsFolderTextBox_TextChanged(object sender, EventArgs e)
