@@ -205,6 +205,7 @@ namespace Circle_Tracker
         }
         public bool TrySwitchBeatmap()
         {
+            string beatmapPathTemp = "";
             try
             {
                 BeatmapPath = Path.Combine(SongsFolder, osuReader.GetMapFolderName(), osuReader.GetOsuFileName());
@@ -223,6 +224,8 @@ namespace Circle_Tracker
                 return false;
             int version = int.Parse(m.Groups[1].ToString());
 
+            // commit to new beatmap
+            BeatmapPath   = beatmapPathTemp;
             beatmap       = BeatmapConstructorWrapper(BeatmapPath);
             BeatmapBpm    = (int)Math.Round(beatmap.Bpm);
             BeatmapString = osuReader.GetSongString();
@@ -238,9 +241,12 @@ namespace Circle_Tracker
         {
             // beatmap
             string beatmapFilename = osuReader.GetOsuFileName();
-            if (beatmapFilename != "" && beatmapFilename != Path.GetFileName(BeatmapPath))
+            if (beatmapFilename != Path.GetFileName(BeatmapPath) && beatmapFilename != "")
             {
-                TrySwitchBeatmap();
+                if (!TrySwitchBeatmap())
+                {
+                    BeatmapString = "???";
+                }
             }
 
             // gameplay stuff

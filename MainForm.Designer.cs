@@ -47,6 +47,7 @@
             this.ConnectApiButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.credentialsLabel = new System.Windows.Forms.Label();
+            this.altSepCheckBox = new System.Windows.Forms.CheckBox();
             this.soundEnabledCheckbox = new System.Windows.Forms.CheckBox();
             this.label8 = new System.Windows.Forms.Label();
             this.statusLabel = new System.Windows.Forms.Label();
@@ -58,12 +59,14 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.modsTextBox = new System.Windows.Forms.TextBox();
             this.textBoxCS = new System.Windows.Forms.TextBox();
+            this.accLabel = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.textBoxOD = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.textBoxAR = new System.Windows.Forms.TextBox();
+            this.accTextBox = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.updateGameVariablesTimer = new System.Windows.Forms.Timer(this.components);
@@ -72,9 +75,6 @@
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.updateFormTimer = new System.Windows.Forms.Timer(this.components);
-            this.accTextBox = new System.Windows.Forms.TextBox();
-            this.accLabel = new System.Windows.Forms.Label();
-            this.altSepCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -245,6 +245,17 @@
             this.credentialsLabel.TabIndex = 6;
             this.credentialsLabel.Text = "Missing";
             // 
+            // altSepCheckBox
+            // 
+            this.altSepCheckBox.AutoSize = true;
+            this.altSepCheckBox.Location = new System.Drawing.Point(6, 156);
+            this.altSepCheckBox.Name = "altSepCheckBox";
+            this.altSepCheckBox.Size = new System.Drawing.Size(248, 17);
+            this.altSepCheckBox.TabIndex = 6;
+            this.altSepCheckBox.Text = "Toggle this to fix #ERROR! in Beatmap column";
+            this.altSepCheckBox.UseVisualStyleBackColor = true;
+            this.altSepCheckBox.CheckedChanged += new System.EventHandler(this.altSepCheckBox_CheckedChanged);
+            // 
             // soundEnabledCheckbox
             // 
             this.soundEnabledCheckbox.AutoSize = true;
@@ -363,6 +374,15 @@
             this.textBoxCS.Size = new System.Drawing.Size(39, 20);
             this.textBoxCS.TabIndex = 1;
             // 
+            // accLabel
+            // 
+            this.accLabel.AutoSize = true;
+            this.accLabel.Location = new System.Drawing.Point(15, 186);
+            this.accLabel.Name = "accLabel";
+            this.accLabel.Size = new System.Drawing.Size(25, 13);
+            this.accLabel.TabIndex = 0;
+            this.accLabel.Text = "acc";
+            // 
             // label12
             // 
             this.label12.AutoSize = true;
@@ -414,6 +434,14 @@
             this.textBoxAR.ReadOnly = true;
             this.textBoxAR.Size = new System.Drawing.Size(39, 20);
             this.textBoxAR.TabIndex = 1;
+            // 
+            // accTextBox
+            // 
+            this.accTextBox.Location = new System.Drawing.Point(54, 183);
+            this.accTextBox.Name = "accTextBox";
+            this.accTextBox.ReadOnly = true;
+            this.accTextBox.Size = new System.Drawing.Size(100, 20);
+            this.accTextBox.TabIndex = 1;
             // 
             // panel1
             // 
@@ -482,34 +510,6 @@
             // 
             this.updateFormTimer.Interval = 60;
             this.updateFormTimer.Tick += new System.EventHandler(this.updateFormTimer_Tick);
-            // 
-            // accTextBox
-            // 
-            this.accTextBox.Location = new System.Drawing.Point(54, 183);
-            this.accTextBox.Name = "accTextBox";
-            this.accTextBox.ReadOnly = true;
-            this.accTextBox.Size = new System.Drawing.Size(100, 20);
-            this.accTextBox.TabIndex = 1;
-            // 
-            // accLabel
-            // 
-            this.accLabel.AutoSize = true;
-            this.accLabel.Location = new System.Drawing.Point(15, 186);
-            this.accLabel.Name = "accLabel";
-            this.accLabel.Size = new System.Drawing.Size(25, 13);
-            this.accLabel.TabIndex = 0;
-            this.accLabel.Text = "acc";
-            // 
-            // altSepCheckBox
-            // 
-            this.altSepCheckBox.AutoSize = true;
-            this.altSepCheckBox.Location = new System.Drawing.Point(6, 156);
-            this.altSepCheckBox.Name = "altSepCheckBox";
-            this.altSepCheckBox.Size = new System.Drawing.Size(248, 17);
-            this.altSepCheckBox.TabIndex = 6;
-            this.altSepCheckBox.Text = "Toggle this to fix #ERROR! in Beatmap column";
-            this.altSepCheckBox.UseVisualStyleBackColor = true;
-            this.altSepCheckBox.CheckedChanged += new System.EventHandler(this.altSepCheckBox_CheckedChanged);
             // 
             // MainForm
             // 

@@ -29,7 +29,7 @@ namespace Circle_Tracker
             if (shortcutExists)
             {
                 // overwrite the existing shortcut just in it's an older version
-                DeleteShortcut();
+                TryDeleteShortcut();
                 CreateShortcut();
             }
 
@@ -116,6 +116,7 @@ namespace Circle_Tracker
             }
             catch (Exception ex)
             {
+                updateGameVariablesTimer.Stop();
                 using (StreamWriter outputFile = new StreamWriter(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "errorlog.txt")))
                 {
                     outputFile.WriteLine("-------------------");
@@ -129,7 +130,6 @@ namespace Circle_Tracker
                     $"{ex.ToString()}{Environment.NewLine}{Environment.NewLine}"
                     , "Error");
                 MessageBox.Show($"Please send errorlog.txt to FunOrange. This file is located inside the circle tracker folder.");
-                updateGameVariablesTimer.Stop();
             }
         }
 
@@ -141,7 +141,7 @@ namespace Circle_Tracker
             }
             else
             {
-                DeleteShortcut();
+                TryDeleteShortcut();
             }
         }
 
@@ -170,9 +170,16 @@ namespace Circle_Tracker
             shortcut.TargetPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             shortcut.Save();
         }
-        private void DeleteShortcut()
+        private void TryDeleteShortcut()
         {
-            System.IO.File.Delete(ShortcutAddress);
+            try
+            {
+                System.IO.File.Delete(ShortcutAddress);
+            }
+            catch
+            {
+                // couldn't delete (eg. shortcut in use...)
+            }
         }
         private bool ShortcutExists()
         {
