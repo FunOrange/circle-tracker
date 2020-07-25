@@ -50,7 +50,8 @@ namespace Circle_Tracker
             ("EZ", "EZ"),
             ("HT", "HT"),
             ("FL", "FL"),
-            ("Map Complete", "complete")
+            ("Map Complete", "complete"),
+            ("Playcount", "playcount")
         };
 
         // Beatmap
@@ -403,6 +404,11 @@ namespace Circle_Tracker
             return mods;
         }
 
+        public string getFunctionSeparator()
+        {
+            return UseAltFuncSeparator ? ";" : ",";
+        }
+
         private (decimal, decimal, decimal) oppai(string beatmapPath, string mods)
         {
             if (!File.Exists(beatmapPath))
@@ -526,7 +532,7 @@ namespace Circle_Tracker
             writeRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
             try
             {
-                var appendResponse = writeRequest.Execute();
+                var writeResponse = writeRequest.Execute();
             }
             catch (GoogleApiException e)
             {
@@ -545,8 +551,27 @@ namespace Circle_Tracker
                 SetSheetsApiReady(false);
                 return;
             }
+            // Try to write playcount to W2
+            range = $"'{SheetName}'!W2";
+            valueRange = new ValueRange();
+            valueRange.Values = new List<IList<object>> { new List<object>() { $"=ARRAYFORMULA(IF(ISBLANK(hits) = false{getFunctionSeparator()} hits^0{getFunctionSeparator()}))" } };
+            writeRequest = GoogleSheetsService.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
+            writeRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+            try
+            {
+                var writeResponse = writeRequest.Execute();
+            }
+            catch (GoogleApiException e)
+            {
+                if (!silent)
+                    MessageBox.Show(e.Message, "Google Sheets API Error");
+                SetSheetsApiReady(false);
+                return;
+            }
+            
 
             // Try to add in any missing named ranges
+            // TODO: try to update named ranges if sheet expands
             var namedRanges    = DataRanges.Select(x => x.Item2).ToList();
             var existingRanges = spreadsheet.NamedRanges.Select((namedRange) => namedRange.Name).ToList();
             List<Request> addMissingRangeRequests = new List<Request>();;
@@ -588,17 +613,16 @@ namespace Circle_Tracker
                     SetSheetsApiReady(false);
                     return;
                 }
-
             }
 
             // Prompt correct timezone
             if (!SpreadsheetTimezoneVerified)
             {
-                var response = MessageBox.Show($"Your spreadsheet timezone is set to {spreadsheet.Properties.TimeZone}.{Environment.NewLine}{Environment.NewLine}" +
+                var userResponse = MessageBox.Show($"Your spreadsheet timezone is set to {spreadsheet.Properties.TimeZone}.{Environment.NewLine}{Environment.NewLine}" +
                     "Is this correct?",
                     "Confirm Timezone",
                     MessageBoxButtons.YesNo);
-                if (response == DialogResult.Yes)
+                if (userResponse == DialogResult.Yes)
                 {
                     SpreadsheetTimezoneVerified = true;
                     MessageBox.Show("cool", "Cool");
@@ -655,10 +679,9 @@ namespace Circle_Tracker
 
             var range = $"'{SheetName}'!A:J";
             var valueRange = new ValueRange();
-            string functionSeparator = UseAltFuncSeparator ? ";" : ",";
             var writeData = new List<object>() {
                 /*A: Date & Time*/ DateTime.Now.ToString(dateTimeFormat, CultureInfo.InvariantCulture),
-                /*B: Beatmap    */ $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\", \"{escapedName + mods}\")",
+                /*B: Beatmap    */ $"=HYPERLINK(\"https://osu.ppy.sh/beatmapsets/{BeatmapSetID}#osu/{BeatmapID}\"{getFunctionSeparator()} \"{escapedName + mods}\")",
                 /*C: Hidden     */ Hidden ? "1":"",
                 /*D: Hardrock   */ Hardrock ? "1":"",
                 /*E: Doubletime */ Doubletime ? "1":"",
