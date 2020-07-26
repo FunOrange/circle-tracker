@@ -5,11 +5,12 @@
 [DONE] Startup directory depends on Drive C ()
 [DONE] Fix 0 bpm bug once and for all
 [DONE] Add new logo to notification tray icon
+[DONE] Fixed incorrect number of hits being submitted
 
 --- FEATURES ---
 [] Extended info (artist, song, mapper, beatmap length)
 [DONE] Add welcome message pointing to youtube tutorial
-[] Detect multiple instances running
+[DONE] Detect multiple instances running
 [DONE] Confirm spreadsheet timezone with user
 [DONE] Add playcount
 [DONE] Automatically update Named Ranges
