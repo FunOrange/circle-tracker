@@ -117,6 +117,15 @@ namespace Circle_Tracker
             GameState = osuReader.GetCurrentStatus(out _);
             soundFilename = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\sectionpass.wav";
             LastPostTime = DateTime.Now;
+
+            // First time running circle tracker
+            if (!File.Exists("user_settings.txt"))
+            {
+                MessageBox.Show($"Thank you for trying out circle tracker!{Environment.NewLine}" +
+                    $"For instructions on how to get set up, watch my tutorial video on Youtube." +
+                    $"If you need help with anything, feel free to message FunOrange on osu!, twitter, discord, etc.",
+                    "Welcome!");
+            }
         }
 
         public void SaveSettings()
