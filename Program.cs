@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,9 +16,28 @@ namespace Circle_Tracker
         [STAThread]
         static void Main()
         {
+            if (!EnsureSingleInstance())
+            {
+                MessageBox.Show("Another instance of circle tracker is already running.", "Error");
+                return;
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
+        }
+        static bool EnsureSingleInstance()
+        {
+            Process currentProcess = Process.GetCurrentProcess();
+
+            var runningProcess = (from process in Process.GetProcesses()
+                                  where
+                                    process.Id != currentProcess.Id &&
+                                    process.ProcessName.Equals(
+                                      currentProcess.ProcessName,
+                                      StringComparison.Ordinal)
+                                  select process).FirstOrDefault();
+
+            return (runningProcess != null) ? false : true;
         }
     }
 }
