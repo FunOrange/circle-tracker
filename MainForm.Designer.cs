@@ -514,7 +514,7 @@
             this.notifyIcon.BalloonTipText = "Info";
             this.notifyIcon.BalloonTipTitle = "Hey";
             this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
-            this.notifyIcon.Text = "notifyIcon1";
+            this.notifyIcon.Text = "Circle Tracker";
             this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseDoubleClick);
             // 
             // button1
