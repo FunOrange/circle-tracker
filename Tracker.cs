@@ -117,7 +117,7 @@ namespace Circle_Tracker
             if (!File.Exists("user_settings.txt"))
             {
                 MessageBox.Show($"Thank you for trying out circle tracker!{Environment.NewLine}" +
-                    $"For instructions on how to get set up, watch my tutorial video on Youtube." +
+                    $"For instructions on how to get set up, watch my tutorial video on Youtube. " +
                     $"If you need help with anything, feel free to message FunOrange on osu!, twitter, discord, etc.",
                     "Welcome!");
             }
