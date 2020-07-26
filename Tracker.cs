@@ -84,11 +84,6 @@ namespace Circle_Tracker
         public decimal BeatmapCs { get; private set; }
         public decimal BeatmapAr { get; private set; }
         public decimal BeatmapOd { get; private set; }
-        int cached300c = 0;
-        int cached100c = 0;
-        int cached50c = 0;
-        int cachedMissc = 0;
-        int cachedHits = 0;
         public int Play300c { get; set; } = 0;
         public int Play100c { get; set; } = 0;
         public int Play50c { get; set; } = 0;
@@ -252,10 +247,6 @@ namespace Circle_Tracker
                     bool beatmapCompleted = newGameState == OsuMemoryStatus.ResultsScreen;
                     PostBeatmapEntryToGoogleSheetsWrapper(beatmapCompleted);
                     // reset game variables
-                    cached300c = 0;
-                    cached100c = 0;
-                    cached50c = 0;
-                    cachedMissc = 0;
                     Play300c = 0;
                     Play100c = 0;
                     Play50c = 0;
@@ -357,22 +348,17 @@ namespace Circle_Tracker
                     int newSongTime = osuReader.ReadPlayTime();
 
                     // update hits
-                    if (newMissc > cachedMissc)
+                    if (newMissc > PlayMissc)
                     {
-                        PlayMissc += newMissc - cachedMissc;
+                        PlayMissc = newMissc;
                     }
-                    if (newHits > cachedHits && newHits - cachedHits < 5)
+                    if (newHits > TotalBeatmapHits && newHits - TotalBeatmapHits < 50) // safety measure: counters can't decrease; can't increment by more than 50
                     {
-                        Play300c         += new300c - cached300c;
-                        Play100c         += new100c - cached100c;
-                        Play50c          += new50c - cached50c;
-                        TotalBeatmapHits += newHits - cachedHits;
+                        Play300c         = new300c;
+                        Play100c         = new100c;
+                        Play50c          = new50c;
+                        TotalBeatmapHits = newHits;
                     }
-                    cached300c = new300c;
-                    cached100c = new100c;
-                    cached50c = new50c;
-                    cachedMissc = newMissc;
-                    cachedHits = newHits;
 
                     // detect retry
                     if (newSongTime < Time && Time > 0)
@@ -380,10 +366,6 @@ namespace Circle_Tracker
                         //Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
                         PostBeatmapEntryToGoogleSheetsWrapper(false);
                         // reset game variables
-                        cached300c = 0;
-                        cached100c = 0;
-                        cached50c = 0;
-                        cachedMissc = 0;
                         Play300c = 0;
                         Play100c = 0;
                         Play50c = 0;
