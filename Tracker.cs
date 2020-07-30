@@ -102,7 +102,10 @@ namespace Circle_Tracker
         public bool UseAltFuncSeparator { get; set; } = false;
         public string SpreadsheetId { get; set; }
         public string SheetName { get; set; }
+        public int SheetRows { get; set; }
         SheetsService GoogleSheetsService;
+        Spreadsheet UserSpreadsheet = null;
+        Sheet RawDataSheet = null;
 
         public Tracker(MainForm f)
         {
@@ -166,6 +169,14 @@ namespace Circle_Tracker
         }
 
         private bool PlayDataValid (PlayContainer pc) {
+            try
+            {
+               decimal acc = (decimal)pc.Acc;
+            }
+            catch (Exception)
+            {
+                return false;
+            }            
             return !(
                 pc.Acc      == 100 &&
                 pc.C300     == 0   &&
@@ -491,10 +502,9 @@ namespace Circle_Tracker
 
             // Get entire Spreadsheet
             var getSheetRequest = GoogleSheetsService.Spreadsheets.Get(SpreadsheetId);
-            Spreadsheet spreadsheet;
             try
             {
-                spreadsheet = getSheetRequest.Execute();
+                UserSpreadsheet = getSheetRequest.Execute();
             }
             catch (GoogleApiException e)
             {
@@ -505,10 +515,9 @@ namespace Circle_Tracker
             }
 
             // Get Raw Data sheet
-            Sheet rawDataSheet = null;
             try
             {
-                rawDataSheet = spreadsheet.Sheets.First((shit) => shit.Properties.Title == SheetName);
+                RawDataSheet = UserSpreadsheet.Sheets.First((shit) => shit.Properties.Title == SheetName);
             }
             catch (Exception e)
             {
@@ -517,6 +526,7 @@ namespace Circle_Tracker
                 SetSheetsApiReady(false);
                 return;
             }
+            SheetRows = (int)RawDataSheet.Properties.GridProperties.RowCount;
 
             // Write headers (Row 1)
             try
@@ -559,7 +569,7 @@ namespace Circle_Tracker
             // Add in Missing Named Ranges (if any)
             try
             {
-                AddMissingNamedRanges(spreadsheet, rawDataSheet);
+                AddMissingNamedRanges(UserSpreadsheet, RawDataSheet);
             }
             catch (GoogleApiException e)
             {
@@ -569,18 +579,17 @@ namespace Circle_Tracker
                 return;
             }
 
-            // Named Range Maintenance (extend range if necessary)
-            MaintainNamedRanges(spreadsheet, rawDataSheet);
+            // Extend ranges if necessary
+            ResizeNamedRanges(UserSpreadsheet, SheetRows);
 
             // Prompt Correct Timezone
-            PromptTimezone(spreadsheet);
+            PromptTimezone(UserSpreadsheet);
 
             SetSheetsApiReady(true);
         }
 
-        private void MaintainNamedRanges(Spreadsheet spreadsheet, Sheet rawDataSheet)
+        private void ResizeNamedRanges(Spreadsheet spreadsheet, int rows)
         {
-            int rows = (int)rawDataSheet.Properties.GridProperties.RowCount;
             var definedNamedRanges = DataRanges.Select(x => x.Item2).ToList();
             var rangesToUpdate = spreadsheet.NamedRanges
                 .Where(nr => definedNamedRanges.Contains(nr.Name))
@@ -655,7 +664,7 @@ namespace Circle_Tracker
                     req.AddNamedRange.NamedRange.Range.StartColumnIndex = i;
                     req.AddNamedRange.NamedRange.Range.EndColumnIndex = i + 1;
                     req.AddNamedRange.NamedRange.Range.StartRowIndex = 1;
-                    req.AddNamedRange.NamedRange.Range.EndRowIndex = rawDataSheet.Properties.GridProperties.RowCount;
+                    req.AddNamedRange.NamedRange.Range.EndRowIndex = SheetRows;
                     addMissingRangeRequests.Add(req);
                 }
             }
@@ -753,21 +762,40 @@ namespace Circle_Tracker
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
             var appendResponse = appendRequest.Execute();
-            bool success = (appendResponse.Updates.UpdatedRows == 1);
-            if (success)
+
+            // play submit success
+            LastPostTime = DateTime.Now;
+            if (SubmitSoundEnabled)
             {
-                LastPostTime = DateTime.Now;
-                if (SubmitSoundEnabled)
+                using (SoundPlayer player = new SoundPlayer(soundFilename))
                 {
-                    using (SoundPlayer player = new SoundPlayer(soundFilename))
-                    {
-                        player.Play();
-                    }
+                    player.Play();
                 }
             }
-            else
+
+            int updatedRow = 0;
+            foreach (Match m in new Regex(@"\d+").Matches(appendResponse.Updates.UpdatedRange))
             {
-                Console.WriteLine("submit error");
+                int parsedInt = int.Parse(m.Value);
+                if (parsedInt > updatedRow)
+                    updatedRow = parsedInt;
+            }
+            if (updatedRow > SheetRows)
+            {
+                // Add 100 more rows and update named ranges
+                var req = new Request();
+                req.AppendDimension = new AppendDimensionRequest();
+                req.AppendDimension.Dimension = "ROWS";
+                req.AppendDimension.SheetId = RawDataSheet.Properties.SheetId;
+                req.AppendDimension.Length = 100;
+                var b1 = new BatchUpdateSpreadsheetRequest();
+                b1.Requests = new List<Request>() { req };
+                var b2 = GoogleSheetsService.Spreadsheets.BatchUpdate(b1, SpreadsheetId);
+                b2.Execute();
+
+                // Update Named Ranges
+                ResizeNamedRanges(UserSpreadsheet, updatedRow + 100);
+                SheetRows = updatedRow + 100;
             }
         }
         void SetSheetsApiReady(bool val)

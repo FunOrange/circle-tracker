@@ -8,10 +8,10 @@
 [DONE] Fixed incorrect number of hits being submitted
 
 --- FEATURES ---
-[] Store "#ERROR! fix" user setting
+[DONE] Store "#ERROR! fix" user setting
 [DONE] Automatically extend named ranges to bottom of sheet
 [] Automatically add more rows if sheet becomes full
-[] Extended info (time)
+[DONE] Extended info (time)
 [] Extended info (artist, song, mapper, beatmap length)
 [] Store plays in local buffer while internet unavailable for my 3rd world homies
 [DONE] Add welcome message pointing to youtube tutorial
