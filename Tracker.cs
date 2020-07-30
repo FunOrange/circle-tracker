@@ -51,7 +51,8 @@ namespace Circle_Tracker
             ("HT", "HT"),
             ("FL", "FL"),
             ("Map Complete", "complete"),
-            ("Playcount", "playcount")
+            ("Playcount", "playcount"),
+            ("Time (s)", "time_seconds")
         };
 
         // Beatmap
@@ -738,10 +739,12 @@ namespace Circle_Tracker
                 /*P: 100c       */ Play100c,
                 /*Q: 50c        */ Play50c,
                 /*R: Missc      */ PlayMissc,
-                /*R: EZ         */ EZ ? "1":"",
-                /*S: HT         */ Halftime ? "1":"",
-                /*T: FL         */ Flashlight ? "1":"",
-                /*U: complete   */ complete ? "1":"0",
+                /*S: EZ         */ EZ ? "1":"",
+                /*T: HT         */ Halftime ? "1":"",
+                /*U: FL         */ Flashlight ? "1":"",
+                /*V: complete   */ complete ? "1":"0",
+                /*W: playcount  */ "",                 // (this is provided by a formula in row 2)
+                /*X: time       */ (Time / 1000)
             };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
