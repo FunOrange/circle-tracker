@@ -222,7 +222,10 @@ namespace Circle_Tracker
             if (beatmapPathTemp == "")
                 return false;
 
-            string versionLine = File.ReadLines(beatmapPathTemp).First();
+            var beatmapLines = File.ReadLines(beatmapPathTemp);
+            if (beatmapLines.Count() == 0)
+                return false;
+            string versionLine = beatmapLines.First();
             Match m = Regex.Match(versionLine, @"osu file format v(\d+)");
             if (!m.Success)
                 return false;
