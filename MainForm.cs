@@ -113,7 +113,7 @@ namespace Circle_Tracker
         private async void updateGameVariablesTimer_Tick(object sender, EventArgs e)
         {
 #if DEBUG
-            await Task.Run(() => tracker.Tick());
+            await Task.Run(() => tracker.TickWrapper());
 #else
             try
             {

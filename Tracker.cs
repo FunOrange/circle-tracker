@@ -95,7 +95,7 @@ namespace Circle_Tracker
 
         // Google Sheets API
         private DateTime LastPostTime { get; set; }
-        private bool GoogleSheetsAPILock { get; set; } = false;
+        private bool TickLock { get; set; } = false;
         private bool SpreadsheetTimezoneVerified { get; set; } = false;
         public bool SheetsApiReady { get; set; } = false;
         public bool UseAltFuncSeparator { get; set; } = false;
@@ -245,7 +245,7 @@ namespace Circle_Tracker
                 {
                     //Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
                     bool beatmapCompleted = newGameState == OsuMemoryStatus.ResultsScreen;
-                    PostBeatmapEntryToGoogleSheetsWrapper(beatmapCompleted);
+                    TryPostBeatmapEntryToGoogleSheets(beatmapCompleted);
                     // reset game variables
                     Play300c = 0;
                     Play100c = 0;
@@ -364,7 +364,7 @@ namespace Circle_Tracker
                     if (newSongTime < Time && Time > 0)
                     {
                         //Console.WriteLine($"Beatmap retry; newSongTime {newSongTime} cachedSongTime {Time} Hits {TotalBeatmapHits}");
-                        PostBeatmapEntryToGoogleSheetsWrapper(false);
+                        TryPostBeatmapEntryToGoogleSheets(false);
                         // reset game variables
                         Play300c = 0;
                         Play100c = 0;
@@ -514,99 +514,106 @@ namespace Circle_Tracker
                 return;
             }
 
-            // Try to set the headers to check if we can successfully write data
-            var range = $"'{SheetName}'!A1:1";
-            var valueRange = new ValueRange();
-            var rawDataHeaders = DataRanges.Select(x => (object)x.Item1).ToList();
-            valueRange.Values = new List<IList<object>> { rawDataHeaders };
+            // Write headers (Row 1)
+            try
+            {
+                WriteHeaders();
+            }
+            catch (GoogleApiException e)
+            {
+                if (!silent)
+                {
+                    MessageBox.Show(e.Message, "Google Sheets API Error");
+                    
+                    if (e.Message.Contains("Unable to parse range"))
+                        MessageBox.Show("Try checking if you entered the correct thing for sheet name. Sheet name refers to the name of a 'tab' in the spreadsheet, not the name of the entire spreadsheet");
+                    if (e.Message.Contains("Requested entity was not found"))
+                        MessageBox.Show("Try double checking to see if the Spreadsheet ID is correct.");
+                }
+                SetSheetsApiReady(false);
+                return;
+            }
+
+            // Try to write playcount to W2
+            string range = $"'{SheetName}'!W2";
+            ValueRange valueRange = new ValueRange();
+            valueRange.Values = new List<IList<object>> { new List<object>() { $"=ARRAYFORMULA(IF(ISBLANK(hits) = false{getFunctionSeparator()} hits^0{getFunctionSeparator()}))" } };
             var writeRequest = GoogleSheetsService.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
             writeRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
             try
             {
-                var writeResponse = writeRequest.Execute();
+                writeRequest.Execute();
             }
             catch (GoogleApiException e)
             {
                 if (!silent)
-                {
-                    MessageBox.Show(e.Message, "Google Sheets API Error");
-                    if (e.Message.Contains("Unable to parse range"))
-                    {
-                        MessageBox.Show("Try checking if you entered the correct thing for sheet name. Sheet name refers to the name of a 'tab' in the spreadsheet, not the name of the entire spreadsheet");
-                    }
-                    if (e.Message.Contains("Requested entity was not found"))
-                    {
-                        MessageBox.Show("Try double checking to see if the Spreadsheet ID is correct.");
-                    }
-                }
+                    MessageBox.Show(e.Message, $"Google Sheets API Error: Unable to Write Playcount to {range}");
                 SetSheetsApiReady(false);
                 return;
             }
-            // Try to write playcount to W2
-            range = $"'{SheetName}'!W2";
-            valueRange = new ValueRange();
-            valueRange.Values = new List<IList<object>> { new List<object>() { $"=ARRAYFORMULA(IF(ISBLANK(hits) = false{getFunctionSeparator()} hits^0{getFunctionSeparator()}))" } };
-            writeRequest = GoogleSheetsService.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
-            writeRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+
+            // Add in Missing Named Ranges (if any)
             try
             {
-                var writeResponse = writeRequest.Execute();
+                AddMissingNamedRanges(spreadsheet, rawDataSheet);
             }
             catch (GoogleApiException e)
             {
                 if (!silent)
-                    MessageBox.Show(e.Message, "Google Sheets API Error");
+                    MessageBox.Show(e.Message, "Google Sheets API Error: Unable to Add Named Ranges");
                 SetSheetsApiReady(false);
                 return;
             }
-            
 
-            // Try to add in any missing named ranges
-            // TODO: try to update named ranges if sheet expands
-            var namedRanges    = DataRanges.Select(x => x.Item2).ToList();
-            var existingRanges = spreadsheet.NamedRanges.Select((namedRange) => namedRange.Name).ToList();
-            List<Request> addMissingRangeRequests = new List<Request>();;
-            for (int i = 0; i < namedRanges.Count; i++)
+            // Named Range Maintenance (extend range if necessary)
+            MaintainNamedRanges(spreadsheet, rawDataSheet);
+
+            // Prompt Correct Timezone
+            PromptTimezone(spreadsheet);
+
+            SetSheetsApiReady(true);
+        }
+
+        private void MaintainNamedRanges(Spreadsheet spreadsheet, Sheet rawDataSheet)
+        {
+            int rows = (int)rawDataSheet.Properties.GridProperties.RowCount;
+            var definedNamedRanges = DataRanges.Select(x => x.Item2).ToList();
+            var rangesToUpdate = spreadsheet.NamedRanges
+                .Where(nr => definedNamedRanges.Contains(nr.Name))
+                .Where(nr => nr.Range.EndRowIndex != rows);
+            List<Request> rangeUpdateRequests = new List<Request>();
+            foreach (NamedRange nr in rangesToUpdate)
             {
-                if (!existingRanges.Contains(namedRanges[i]))
-                {
-                    Console.WriteLine($"Adding range {namedRanges[i]}");
-                    // update named ranges to include this data column
-                    var req = new Request();
-                    req.AddNamedRange = new AddNamedRangeRequest();
-                    req.AddNamedRange.NamedRange = new NamedRange();
-                    req.AddNamedRange.NamedRange.Name = namedRanges[i];
-                    req.AddNamedRange.NamedRange.Range = new GridRange();
-                    req.AddNamedRange.NamedRange.Range.SheetId = rawDataSheet.Properties.SheetId;
-                    req.AddNamedRange.NamedRange.Range.StartColumnIndex = i;
-                    req.AddNamedRange.NamedRange.Range.EndColumnIndex = i + 1;
-                    req.AddNamedRange.NamedRange.Range.StartRowIndex = 1;
-                    req.AddNamedRange.NamedRange.Range.EndRowIndex = rawDataSheet.Properties.GridProperties.RowCount;
-                    addMissingRangeRequests.Add(req);
-                }
-            }
-            var reqs = new BatchUpdateSpreadsheetRequest();
-            reqs.Requests = addMissingRangeRequests;
-            SpreadsheetsResource.BatchUpdateRequest batchRequest = GoogleSheetsService.Spreadsheets.BatchUpdate(reqs, SpreadsheetId);
-            if (addMissingRangeRequests.Count > 0)
-            {
-                try
-                {
-                    batchRequest.Execute();
-                    string message = $"The following Named Ranges have been added to your spreadsheet:{Environment.NewLine}{Environment.NewLine}";
-                    message += String.Join(Environment.NewLine, addMissingRangeRequests.Select(r => $"・{r.AddNamedRange.NamedRange.Name}"));
-                    MessageBox.Show(message, "Congratulations");
-                }
-                catch (GoogleApiException e)
-                {
-                    if (!silent)
-                        MessageBox.Show(e.Message, "Google Sheets API Error");
-                    SetSheetsApiReady(false);
-                    return;
-                }
+                var req = new Request();
+                req.UpdateNamedRange = new UpdateNamedRangeRequest();
+                req.UpdateNamedRange.NamedRange = nr;
+                req.UpdateNamedRange.NamedRange.Range.EndRowIndex = rows;
+                req.UpdateNamedRange.Fields = "Range";
+                rangeUpdateRequests.Add(req);
             }
 
-            // Prompt correct timezone
+            if (rangeUpdateRequests.Count > 0)
+            {
+                var reqs = new BatchUpdateSpreadsheetRequest();
+                reqs.Requests = rangeUpdateRequests;
+                SpreadsheetsResource.BatchUpdateRequest batchRequest = GoogleSheetsService.Spreadsheets.BatchUpdate(reqs, SpreadsheetId);
+                batchRequest.Execute();
+            }
+        }
+
+        private void WriteHeaders()
+        {
+            string range = $"'{SheetName}'!A1:1";
+            ValueRange valueRange = new ValueRange();
+            var rawDataHeaders = DataRanges.Select(x => (object)x.Item1).ToList();
+            valueRange.Values = new List<IList<object>> { rawDataHeaders };
+            SpreadsheetsResource.ValuesResource.UpdateRequest writeRequest = GoogleSheetsService.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
+            writeRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+            writeRequest.Execute();
+        }
+
+        private void PromptTimezone(Spreadsheet spreadsheet)
+        {
             if (!SpreadsheetTimezoneVerified)
             {
                 var userResponse = MessageBox.Show($"Your spreadsheet timezone is set to {spreadsheet.Properties.TimeZone}.{Environment.NewLine}{Environment.NewLine}" +
@@ -623,20 +630,58 @@ namespace Circle_Tracker
                     MessageBox.Show("Please change this in your spreadsheet. Go to File > Spreadsheet Settings and then change the timezone there.");
                 }
             }
-            
-            SetSheetsApiReady(true);
         }
 
-        private void PostBeatmapEntryToGoogleSheetsWrapper(bool complete)
+        private void AddMissingNamedRanges(Spreadsheet spreadsheet, Sheet rawDataSheet)
+        {
+            var namedRanges = DataRanges.Select(x => x.Item2).ToList();
+            var existingRanges = spreadsheet.NamedRanges.Select((namedRange) => namedRange.Name).ToList();
+            List<Request> addMissingRangeRequests = new List<Request>();
+            for (int i = 0; i < namedRanges.Count; i++)
+            {
+                if (!existingRanges.Contains(namedRanges[i]))
+                {
+                    // update named ranges to include this data column
+                    var req = new Request();
+                    req.AddNamedRange = new AddNamedRangeRequest();
+                    req.AddNamedRange.NamedRange = new NamedRange();
+                    req.AddNamedRange.NamedRange.Name = namedRanges[i];
+                    req.AddNamedRange.NamedRange.Range = new GridRange();
+                    req.AddNamedRange.NamedRange.Range.SheetId = rawDataSheet.Properties.SheetId;
+                    req.AddNamedRange.NamedRange.Range.StartColumnIndex = i;
+                    req.AddNamedRange.NamedRange.Range.EndColumnIndex = i + 1;
+                    req.AddNamedRange.NamedRange.Range.StartRowIndex = 1;
+                    req.AddNamedRange.NamedRange.Range.EndRowIndex = rawDataSheet.Properties.GridProperties.RowCount;
+                    addMissingRangeRequests.Add(req);
+                }
+            }
+            if (addMissingRangeRequests.Count > 0)
+            {
+                var reqs = new BatchUpdateSpreadsheetRequest();
+                reqs.Requests = addMissingRangeRequests;
+                SpreadsheetsResource.BatchUpdateRequest batchRequest = GoogleSheetsService.Spreadsheets.BatchUpdate(reqs, SpreadsheetId);
+                batchRequest.Execute();
+                string message = $"The following Named Ranges have been added to your spreadsheet:{Environment.NewLine}{Environment.NewLine}";
+                message += String.Join(Environment.NewLine, addMissingRangeRequests.Select(r => $"・{r.AddNamedRange.NamedRange.Name}"));
+                MessageBox.Show(message, "Congratulations");
+            }
+        }
+
+        public void TickWrapper()
         {
             //Console.WriteLine(new System.Diagnostics.StackTrace());
             //Console.WriteLine("google sheets api access: " + DateTime.Now);
-            if (GoogleSheetsAPILock)
+            if (TickLock)
             {
                 //Console.WriteLine("duplicate call detected");
                 return;
             }
-            GoogleSheetsAPILock = true; // acquire lock
+            TickLock = true; // acquire lock
+            Tick();
+            TickLock = false; // release lock
+        }
+        private void TryPostBeatmapEntryToGoogleSheets(bool complete)
+        {
             try
             {
                 PostBeatmapEntryToGoogleSheets(complete);
@@ -644,9 +689,13 @@ namespace Circle_Tracker
             catch (NullReferenceException e)
             {
                 // Game variable probably wasn't loaded or read (blame OsuMemoryDataProvider)
+                MessageBox.Show("Could not detect current beatmap. " +
+                    "Sorry, this part of the program is pretty much RNG. " +
+                    "Just try to restart Circle Tracker and/or osu! until beatmaps start being detected in the Circle Tracker window."
+                    , "oops");
             }
-            GoogleSheetsAPILock = false; // release lock
         }
+
         private void PostBeatmapEntryToGoogleSheets(bool complete)
         {
             if (!SheetsApiReady)
