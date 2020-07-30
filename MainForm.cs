@@ -49,6 +49,7 @@ namespace Circle_Tracker
             sheetNameTextBox.Text = tracker.SheetName;
             spreadsheetIdTextBox.Text = tracker.SpreadsheetId;
             soundEnabledCheckbox.Checked = tracker.SubmitSoundEnabled;
+            altSepCheckBox.Checked = tracker.UseAltFuncSeparator;
 
             tracker.InitGoogleAPI(silent:true);
             SetCredentialsFound(System.IO.File.Exists("credentials.json"));

@@ -131,7 +131,8 @@ namespace Circle_Tracker
                 SpreadsheetId,
                 SheetName,
                 SubmitSoundEnabled ? "1" : "0",
-                SpreadsheetTimezoneVerified ? "1" : "0"
+                SpreadsheetTimezoneVerified ? "1" : "0",
+                UseAltFuncSeparator ? "1" : "0"
             };
             File.WriteAllLines("user_settings.txt", lines, Encoding.UTF8);
         }
@@ -143,6 +144,7 @@ namespace Circle_Tracker
             SheetName = "Raw Data";
             SubmitSoundEnabled = true;
             SpreadsheetTimezoneVerified = false;
+            UseAltFuncSeparator = false;
 
             // Load Settings
             if (File.Exists("user_settings.txt"))
@@ -157,6 +159,7 @@ namespace Circle_Tracker
                         case 2: SheetName                   = lines[2];        break;
                         case 3: SubmitSoundEnabled          = lines[3] == "1"; break;
                         case 4: SpreadsheetTimezoneVerified = lines[4] == "1"; break;
+                        case 5: UseAltFuncSeparator         = lines[5] == "1"; break;
                     }
                 }
             }
