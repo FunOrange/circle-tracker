@@ -78,6 +78,25 @@ namespace Circle_Tracker
             textBoxOD.Text      = tracker.BeatmapOd.ToString("0.0");
             accTextBox.Text     = tracker.Accuracy.ToString("0.00") + "%";
             bpmTextBox.Text     = tracker.BeatmapBpm.ToString();
+
+            if (tracker.BeatmapString == null || tracker.BeatmapString == "")
+                beatmapTextBox.BackColor = Color.Pink;
+            else
+                beatmapTextBox.BackColor = SystemColors.Control;
+
+            bool valuesAreBad = (tracker.BeatmapStars == 0
+                           && tracker.BeatmapAim == 0
+                           && tracker.BeatmapSpeed == 0
+                           && tracker.BeatmapCs == 0
+                           && tracker.BeatmapAr == 0
+                           && tracker.BeatmapOd == 0);
+            starsTextBox.BackColor = valuesAreBad ? Color.Pink : SystemColors.Control;
+            aimTextBox.BackColor   = valuesAreBad ? Color.Pink : SystemColors.Control;
+            speedTextBox.BackColor = valuesAreBad ? Color.Pink : SystemColors.Control;
+            textBoxCS.BackColor    = valuesAreBad ? Color.Pink : SystemColors.Control;
+            textBoxAR.BackColor    = valuesAreBad ? Color.Pink : SystemColors.Control;
+            textBoxOD.BackColor    = valuesAreBad ? Color.Pink : SystemColors.Control;
+
         }
 
         private void songsFolderTextBox_TextChanged(object sender, EventArgs e)
@@ -164,7 +183,7 @@ namespace Circle_Tracker
         private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
              Show();
-             this.WindowState = FormWindowState.Normal;
+             WindowState = FormWindowState.Normal;
              notifyIcon.Visible = false;
         }
 

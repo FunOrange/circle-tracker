@@ -148,6 +148,7 @@
             // 
             // beatmapTextBox
             // 
+            this.beatmapTextBox.BackColor = System.Drawing.SystemColors.Control;
             this.beatmapTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.beatmapTextBox.Location = new System.Drawing.Point(76, 31);
             this.beatmapTextBox.Name = "beatmapTextBox";
