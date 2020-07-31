@@ -433,8 +433,7 @@ namespace Circle_Tracker
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true,
-                    // fix this omg 
-                    //StandardOutputEncoding = Encoding.UTF8
+                    StandardOutputEncoding = Encoding.UTF8
                 }
             };
             oppai.Start();
@@ -447,7 +446,7 @@ namespace Circle_Tracker
             {
                 oppaiData = JObject.Parse(oppaiOutput);
             }
-            catch
+            catch (Exception e)
             {
                 return (0, 0, 0);
             }
@@ -706,9 +705,13 @@ namespace Circle_Tracker
             {
                 // Game variable probably wasn't loaded or read (blame OsuMemoryDataProvider)
                 MessageBox.Show("Could not detect current beatmap. " +
-                    "Sorry, this part of the program is pretty much RNG. " +
-                    "Just try to restart Circle Tracker and/or osu! until beatmaps start being detected in the Circle Tracker window."
+                    $"Sorry, this part of the program is RNG and I don't know how to get it working consistently.{Environment.NewLine}" +
+                    $"From experience, the following things will sometimes get it working again:{Environment.NewLine}{Environment.NewLine}" +
+                    $"  1. Restart Circle Tracker{ Environment.NewLine}" +
+                    $"  2. Restart osu! and Circle Tracker{ Environment.NewLine}" +
+                    $"  3. Restart your PC{ Environment.NewLine}"
                     , "oops");
+                form.StopUpdateTimer();
             }
         }
 
@@ -724,6 +727,7 @@ namespace Circle_Tracker
             var timeSinceLastPost = DateTime.Now.Subtract(LastPostTime);
             if (timeSinceLastPost.TotalSeconds < 5)
                 return;
+            LastPostTime = DateTime.Now;
 
             // minimum hits to submit
             if (TotalBeatmapHits < 10) return;
@@ -767,7 +771,6 @@ namespace Circle_Tracker
             var appendResponse = appendRequest.Execute();
 
             // play submit success
-            LastPostTime = DateTime.Now;
             if (SubmitSoundEnabled)
             {
                 using (SoundPlayer player = new SoundPlayer(soundFilename))

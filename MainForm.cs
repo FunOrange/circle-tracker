@@ -144,6 +144,10 @@ namespace Circle_Tracker
             }
 #endif
         }
+        public void StopUpdateTimer()
+        {
+            updateGameVariablesTimer.Stop();
+        }
 
         private void startupCheckBox_CheckedChanged(object sender, EventArgs e)
         {
