@@ -771,7 +771,7 @@ namespace Circle_Tracker
                 /*U: FL         */ Flashlight ? "1":"",
                 /*V: complete   */ complete ? "1":"0",
                 /*W: playcount  */ "",                 // (this is provided by a formula in row 2)
-                /*X: time       */ (Time / 1000)
+                /*X: time       */ (Time / 1000) / (Doubletime ? 1.5M : Halftime ? 0.75M : 1)
             };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);

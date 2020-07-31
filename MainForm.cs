@@ -96,8 +96,6 @@ namespace Circle_Tracker
             textBoxCS.BackColor    = valuesAreBad ? Color.Pink : SystemColors.Control;
             textBoxAR.BackColor    = valuesAreBad ? Color.Pink : SystemColors.Control;
             textBoxOD.BackColor    = valuesAreBad ? Color.Pink : SystemColors.Control;
-
-            BackColor = tracker.MemoryReadError ? Color.Pink : SystemColors.Control;
         }
 
         private void songsFolderTextBox_TextChanged(object sender, EventArgs e)
