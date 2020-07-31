@@ -69,6 +69,7 @@ namespace Circle_Tracker
         public bool SubmitSoundEnabled { get; set; }
 
         // game variables
+        public bool MemoryReadError { get; set; } = false;
         public OsuMemoryStatus GameState { get; set; }
         public int RawMods { get; set; } = 0;
         public bool Hidden { get; set; } = false;
@@ -246,16 +247,26 @@ namespace Circle_Tracker
         }
         public void Tick()
         {
-            // beatmap
+            // update current game state
+            int _;
+            OsuMemoryStatus newGameState = osuReader.GetCurrentStatus(out _);
+            bool songSelectGameState =
+                newGameState == OsuMemoryStatus.SongSelect
+                || newGameState == OsuMemoryStatus.MultiplayerRoom
+                || newGameState == OsuMemoryStatus.MultiplayerSongSelect;
+
+            // update current beatmap
             string beatmapFilename = osuReader.GetOsuFileName();
             if (beatmapFilename != Path.GetFileName(BeatmapPath) && beatmapFilename != "")
             {
                 TrySwitchBeatmap();
             }
 
-            // gameplay stuff
-            int _;
-            OsuMemoryStatus newGameState = osuReader.GetCurrentStatus(out _);
+            // look for read error
+            MemoryReadError = songSelectGameState && (beatmapFilename == "");
+            if (MemoryReadError)
+                BeatmapString = null;
+
 
             if (newGameState != GameState) // state transition
             {
@@ -277,10 +288,6 @@ namespace Circle_Tracker
             }
 
             // update mods
-            bool songSelectGameState =
-                newGameState == OsuMemoryStatus.SongSelect
-                || newGameState == OsuMemoryStatus.MultiplayerRoom
-                || newGameState == OsuMemoryStatus.MultiplayerSongSelect;
             if (songSelectGameState && beatmap != null)
             {
                 RawMods = osuReader.GetMods();
@@ -705,7 +712,8 @@ namespace Circle_Tracker
             {
                 // Game variable probably wasn't loaded or read (blame OsuMemoryDataProvider)
                 MessageBox.Show("Could not detect current beatmap. " +
-                    $"Sorry, this part of the program is RNG and I don't know how to get it working consistently.{Environment.NewLine}" +
+                    $"Sorry, this part of the program is RNG and I don't know how to get it working consistently. " +
+                    $"This problem is not related to which version of Circle Tracker you are using. {Environment.NewLine}" +
                     $"From experience, the following things will sometimes get it working again:{Environment.NewLine}{Environment.NewLine}" +
                     $"  1. Restart Circle Tracker{ Environment.NewLine}" +
                     $"  2. Restart osu! and Circle Tracker{ Environment.NewLine}" +
