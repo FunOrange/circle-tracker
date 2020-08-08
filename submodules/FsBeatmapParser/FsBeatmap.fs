@@ -372,3 +372,16 @@ type Beatmap(file, repr, cl) =
                                      | Comment _ -> false
                                      | _         -> true)
                      |> List.length
+
+    member public this.FirstHitObjectTime
+        with get() =
+            let hitObjects = this.originalFileRepresentation.hitObjects
+                             |> List.filter (function
+                                             | Comment _ -> false
+                                             | _         -> true)
+            match hitObjects.Head with
+            | HitCircle o -> o.time
+            | Slider o -> o.time
+            | Spinner o -> o.time
+            | Hold o -> o.time
+            | _ -> 0

@@ -1,8 +1,5 @@
 --- BUGS ---
 [] Plays get submitted while watching replays or spectating
-   -> Check user to ignore replays/spectates from other users
-[] Map Complete doesn't work when playing multi
-[DONE] Play time is inaccurate; need to subtract starting object time
 [DONE] Check proper bpm with HT, DT, NC
 [DONE] Game data doesn't get updated in multi
 [DONE] Startup directory depends on Drive C ()
@@ -12,10 +9,10 @@
 
 --- FEATURES ---
 [] ignore non-std game modes
-[] ignore relax, autopilot
-[] Calculate accuracy manually from 300s, 100s, 50s, misses (accuracy reading sometimes takes a while to update)
+[] Collection
 [] Store plays in local buffer while internet unavailable
-[] Add collection to spreadsheet
+[] Check user to ignore replays/spectates from other users
+[] Calculate accuracy manually from 300s, 100s, 50s, misses (accuracy reading sometimes takes a while to update)
 [DONE] Store "#ERROR! fix" user setting
 [DONE] Automatically extend named ranges to bottom of sheet
 [DONE] Automatically add more rows if sheet becomes full

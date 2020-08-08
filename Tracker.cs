@@ -57,7 +57,7 @@ namespace Circle_Tracker
 
         // Beatmap
         public string SongsFolder { get; set; }
-        private Beatmap beatmap;
+        private Beatmap currentBeatmap;
         public string BeatmapPath { get; set; }
         public int BeatmapID { get; set; }
         public int BeatmapSetID { get; set; }
@@ -71,6 +71,8 @@ namespace Circle_Tracker
         // game variables
         public bool MemoryReadError { get; set; } = false;
         public OsuMemoryStatus GameState { get; set; }
+        public string Username { get; set; }
+        public string PlayingUser { get; set; }
         public int RawMods { get; set; } = 0;
         public bool Hidden { get; set; } = false;
         public bool Hardrock { get; set; } = false;
@@ -136,7 +138,8 @@ namespace Circle_Tracker
                 SheetName,
                 SubmitSoundEnabled ? "1" : "0",
                 SpreadsheetTimezoneVerified ? "1" : "0",
-                UseAltFuncSeparator ? "1" : "0"
+                UseAltFuncSeparator ? "1" : "0",
+                Username
             };
             File.WriteAllLines("user_settings.txt", lines, Encoding.UTF8);
         }
@@ -149,6 +152,7 @@ namespace Circle_Tracker
             SubmitSoundEnabled = true;
             SpreadsheetTimezoneVerified = false;
             UseAltFuncSeparator = false;
+            Username = "";
 
             // Load Settings
             if (File.Exists("user_settings.txt"))
@@ -164,6 +168,7 @@ namespace Circle_Tracker
                         case 3: SubmitSoundEnabled          = lines[3] == "1"; break;
                         case 4: SpreadsheetTimezoneVerified = lines[4] == "1"; break;
                         case 5: UseAltFuncSeparator         = lines[5] == "1"; break;
+                        case 6: Username                    = lines[6];        break;
                     }
                 }
             }
@@ -233,12 +238,12 @@ namespace Circle_Tracker
             int version = int.Parse(m.Groups[1].ToString());
 
             // commit to new beatmap
-            BeatmapPath   = beatmapPathTemp;
-            beatmap       = BeatmapConstructorWrapper(BeatmapPath);
-            BeatmapBpm    = (int)Math.Round(beatmap.Bpm);
-            BeatmapString = osuReader.GetSongString();
-            BeatmapSetID  = (int)osuReader.GetMapSetId();
-            BeatmapID     = osuReader.GetMapId();
+            BeatmapPath    = beatmapPathTemp;
+            currentBeatmap = BeatmapConstructorWrapper(BeatmapPath);
+            BeatmapBpm     = (int)Math.Round(currentBeatmap.Bpm);
+            BeatmapString  = osuReader.GetSongString();
+            BeatmapSetID   = (int)osuReader.GetMapSetId();
+            BeatmapID      = osuReader.GetMapId();
 
             // oppai
             (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
@@ -288,7 +293,7 @@ namespace Circle_Tracker
             }
 
             // update mods
-            if (songSelectGameState && beatmap != null)
+            if (songSelectGameState && currentBeatmap != null)
             {
                 RawMods = osuReader.GetMods();
                 if (RawMods != -1) // invalid
@@ -305,52 +310,52 @@ namespace Circle_Tracker
 
                     // CS AR OD
                     // FIXME: no support for HalfTime
-                    BeatmapCs = beatmap.CircleSize * (Hardrock ? 1.3M : EZ ? 0.5M : 1);
+                    BeatmapCs = currentBeatmap.CircleSize * (Hardrock ? 1.3M : EZ ? 0.5M : 1);
                     if (Halftime && !Doubletime && !Hardrock && EZ) // HTEZ
                     {
-                        BeatmapAr = DifficultyCalculator.CalculateARWithHTEZ(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithHTEZ(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHTEZ(currentBeatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHTEZ(currentBeatmap.OverallDifficulty);
                     }
                     else if (Halftime && !Doubletime && !Hardrock && !EZ) // HT
                     {
-                        BeatmapAr = DifficultyCalculator.CalculateARWithHT(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithHT(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHT(currentBeatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHT(currentBeatmap.OverallDifficulty);
                     }
                     else if (Halftime && !Doubletime && Hardrock && !EZ) // HTHR
                     {
-                        BeatmapAr = DifficultyCalculator.CalculateARWithHTHR(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithHTHR(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHTHR(currentBeatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHTHR(currentBeatmap.OverallDifficulty);
                     }
                     else if (!Halftime && !Doubletime && !Hardrock && EZ) // EZ
                     {
-                        BeatmapAr = DifficultyCalculator.CalculateARWithEZ(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithEZ(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithEZ(currentBeatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithEZ(currentBeatmap.OverallDifficulty);
                     }
                     else if (!Halftime && !Doubletime && Hardrock && !EZ) // HR
                     {
-                        BeatmapAr = DifficultyCalculator.CalculateARWithHR(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithHR(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithHR(currentBeatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithHR(currentBeatmap.OverallDifficulty);
                     }
                     else if (!Halftime && Doubletime && !Hardrock && EZ) // DTEZ
                     {
-                        BeatmapAr = DifficultyCalculator.CalculateARWithDTEZ(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithDTEZ(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithDTEZ(currentBeatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithDTEZ(currentBeatmap.OverallDifficulty);
                     }
                     else if (!Halftime && Doubletime && !Hardrock && !EZ) // DT
                     {
-                        BeatmapAr = DifficultyCalculator.CalculateARWithDT(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithDT(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithDT(currentBeatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithDT(currentBeatmap.OverallDifficulty);
                     }
                     else if (!Halftime && Doubletime && Hardrock && !EZ) // DTHR
                     {
-                        BeatmapAr = DifficultyCalculator.CalculateARWithDTHR(beatmap.ApproachRate);
-                        BeatmapOd = DifficultyCalculator.CalculateODWithDTHR(beatmap.OverallDifficulty);
+                        BeatmapAr = DifficultyCalculator.CalculateARWithDTHR(currentBeatmap.ApproachRate);
+                        BeatmapOd = DifficultyCalculator.CalculateODWithDTHR(currentBeatmap.OverallDifficulty);
                     }
                     else // NoMod
                     {
-                        BeatmapCs = beatmap.CircleSize;
-                        BeatmapAr = beatmap.ApproachRate;
-                        BeatmapOd = beatmap.OverallDifficulty;
+                        BeatmapCs = currentBeatmap.CircleSize;
+                        BeatmapAr = currentBeatmap.ApproachRate;
+                        BeatmapOd = currentBeatmap.OverallDifficulty;
                     }
                 }
             }
@@ -744,6 +749,7 @@ namespace Circle_Tracker
             string escapedName = BeatmapString.Replace("\"", "\"\"");
             string mods = GetModsString();
             if (mods != "") mods = $" +{mods}";
+            int playTime = (int)((Time - currentBeatmap.FirstHitObjectTime) / (Doubletime ? 1.5f : Halftime ? 0.75f : 1) / 1000);
 
             var range = $"'{SheetName}'!A:J";
             var valueRange = new ValueRange();
@@ -771,7 +777,7 @@ namespace Circle_Tracker
                 /*U: FL         */ Flashlight ? "1":"",
                 /*V: complete   */ complete ? "1":"0",
                 /*W: playcount  */ "",                 // (this is provided by a formula in row 2)
-                /*X: time       */ (Time / 1000) / (Doubletime ? 1.5M : Halftime ? 0.75M : 1)
+                /*X: time       */ playTime
             };
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
