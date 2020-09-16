@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("circle-tracker-dnf")]
+[assembly: AssemblyTitle("circle-tracker")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("circle-tracker-dnf")]
+[assembly: AssemblyProduct("circle-tracker")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9b637f4e-dce1-4c04-aa5e-a04ea439cb2f")]
+[assembly: Guid("862ff93d-5032-4e99-9a96-c4624fec158d")]
 
 // Version information for an assembly consists of the following four values:
 //

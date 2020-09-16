@@ -1,7 +1,7 @@
 --- BUGS ---
 [] Plays get submitted while watching replays or spectating
    -> Check user to ignore replays/spectates from other users
-[] Map Complete doesn't work when playing multi
+[DONE] Map Complete doesn't work when playing multi
 [DONE] Play time is inaccurate; need to subtract starting object time
 [DONE] Check proper bpm with HT, DT, NC
 [DONE] Game data doesn't get updated in multi
@@ -12,7 +12,7 @@
 
 --- FEATURES ---
 [] ignore non-std game modes
-[] ignore relax, autopilot
+[DONE] ignore relax, autopilot
 [] Calculate accuracy manually from 300s, 100s, 50s, misses (accuracy reading sometimes takes a while to update)
 [] Store plays in local buffer while internet unavailable
 [] Add collection to spreadsheet

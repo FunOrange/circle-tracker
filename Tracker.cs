@@ -117,7 +117,7 @@ namespace Circle_Tracker
             osuReader = OsuMemoryReader.Instance.GetInstanceForWindowTitleHint("");
             int _;
             GameState = osuReader.GetCurrentStatus(out _);
-            soundFilename = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\sectionpass.wav";
+            soundFilename = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "assets", "sectionpass.wav");
             LastPostTime = DateTime.Now;
 
             // First time running circle tracker
@@ -440,7 +440,7 @@ namespace Circle_Tracker
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "oppai.exe",
+                    FileName = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "assets", "oppai.exe"),
                     Arguments = $"\"{beatmapPath}\" {mods} -ojson",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -605,9 +605,14 @@ namespace Circle_Tracker
         private void ResizeNamedRanges(Spreadsheet spreadsheet, int rows)
         {
             var definedNamedRanges = DataRanges.Select(x => x.Item2).ToList();
-            var rangesToUpdate = spreadsheet.NamedRanges
-                .Where(nr => definedNamedRanges.Contains(nr.Name))
-                .Where(nr => nr.Range.EndRowIndex != rows);
+            var rangesToUpdate = new List<NamedRange>();
+            if (spreadsheet.NamedRanges != null)
+            {
+                rangesToUpdate = spreadsheet.NamedRanges
+                    .Where(nr => definedNamedRanges.Contains(nr.Name))
+                    .Where(nr => nr.Range.EndRowIndex != rows)
+                    .ToList();
+            }
             List<Request> rangeUpdateRequests = new List<Request>();
             foreach (NamedRange nr in rangesToUpdate)
             {
@@ -662,7 +667,9 @@ namespace Circle_Tracker
         private void AddMissingNamedRanges(Spreadsheet spreadsheet, Sheet rawDataSheet)
         {
             var namedRanges = DataRanges.Select(x => x.Item2).ToList();
-            var existingRanges = spreadsheet.NamedRanges.Select((namedRange) => namedRange.Name).ToList();
+            var existingRanges = new List<string>();
+            if (spreadsheet.NamedRanges != null)
+                existingRanges = spreadsheet.NamedRanges.Select((namedRange) => namedRange.Name).ToList();
             List<Request> addMissingRangeRequests = new List<Request>();
             for (int i = 0; i < namedRanges.Count; i++)
             {
