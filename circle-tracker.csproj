@@ -57,6 +57,12 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="OsuMemoryDataProvider, Version=0.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>packages\OsuMemoryDataProvider.0.0.4\lib\net471\OsuMemoryDataProvider.dll</HintPath>
+    </Reference>
+    <Reference Include="ProcessMemoryDataFinder, Version=0.0.3.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>packages\ProcessMemoryDataFinder.0.0.3\lib\net471\ProcessMemoryDataFinder.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -121,10 +127,6 @@
     <ProjectReference Include="submodules\FsBeatmapParser\FsBeatmapProcessor.fsproj">
       <Project>{2e3cee47-b8c3-42e4-9d32-ac93a019ec1e}</Project>
       <Name>FsBeatmapProcessor</Name>
-    </ProjectReference>
-    <ProjectReference Include="submodules\ProcessMemoryDataFinder\OsuMemoryDataProvider\OsuMemoryDataProvider.csproj">
-      <Project>{044ee1f2-8090-4e91-962d-17d8cfa6b9fc}</Project>
-      <Name>OsuMemoryDataProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
