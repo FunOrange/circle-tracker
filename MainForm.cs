@@ -157,7 +157,7 @@ namespace Circle_Tracker
                 MessageBox.Show($"Exception occurred: {Environment.NewLine}{Environment.NewLine}" +
                     $"{ex.ToString()}{Environment.NewLine}{Environment.NewLine}"
                     , "Error");
-                MessageBox.Show($"Please send errorlog.txt to FunOrange. This file is located inside the circle tracker folder.");
+                MessageBox.Show($"If this problem keeps happening, send errorlog.txt to FunOrange. This file is located inside the circle tracker folder.");
                 updateGameVariablesTimer.Start();
             }
 #endif

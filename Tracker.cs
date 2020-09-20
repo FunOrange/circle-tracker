@@ -277,7 +277,6 @@ namespace Circle_Tracker
             {
                 if (GameState == OsuMemoryStatus.Playing && newGameState != OsuMemoryStatus.Playing) // beatmap quit
                 {
-                    //Console.WriteLine("Beatmap Quit Detected: state transitioned from " + GameState.ToString() + " to " + newGameState.ToString());
                     bool beatmapCompleted = newGameState == OsuMemoryStatus.ResultsScreen;
                     TryPostBeatmapEntryToGoogleSheets(beatmapCompleted);
                     // reset game variables
@@ -369,7 +368,7 @@ namespace Circle_Tracker
 
                 if (PlayDataValid(playData))
                 {
-                    Accuracy = (decimal)playData.Acc;
+                    decimal newAcc = (decimal)playData.Acc;
                     int new300c = playData.C300;
                     int new100c = playData.C100;
                     int new50c = playData.C50;
@@ -384,6 +383,7 @@ namespace Circle_Tracker
                     }
                     if (newHits > TotalBeatmapHits && newHits - TotalBeatmapHits < 50) // safety measure: counters can't decrease; can't increment by more than 50
                     {
+                        Accuracy         = newAcc;
                         Play300c         = new300c;
                         Play100c         = new100c;
                         Play50c          = new50c;
@@ -465,7 +465,6 @@ namespace Circle_Tracker
             string errstr = oppaiData.GetValue("errstr").ToObject<string>();
             if (errstr != "no error")
             {
-                // TODO: An error occurs when opening a non-osu!standard map (mania, taiko, etc)
                 //Console.WriteLine("Could not calculate difficulty");
                 return (0, 0, 0);
             }
@@ -703,13 +702,8 @@ namespace Circle_Tracker
 
         public void TickWrapper()
         {
-            //Console.WriteLine(new System.Diagnostics.StackTrace());
-            //Console.WriteLine("google sheets api access: " + DateTime.Now);
             if (TickLock)
-            {
-                //Console.WriteLine("duplicate call detected");
                 return;
-            }
             TickLock = true; // acquire lock
             Tick();
             TickLock = false; // release lock
@@ -752,6 +746,11 @@ namespace Circle_Tracker
             // minimum hits to submit
             if (TotalBeatmapHits < 10) return;
 
+            // Calculate accuracy manually (readings of 0% or 100% are usually inaccurate)
+            decimal calculatedAccuracy =
+                100 * (300M * Play300c + 100M * Play100c + 50M * Play50c)
+                / (300M * (Play300c + Play100c + Play50c + PlayMissc));
+
             string dateTimeFormat = "yyyy'-'MM'-'dd h':'mm tt";
             string escapedName = BeatmapString.Replace("\"", "\"\"");
             string mods = GetModsString();
@@ -774,7 +773,7 @@ namespace Circle_Tracker
                 /*K: AR         */ BeatmapAr,
                 /*L: OD         */ BeatmapOd,
                 /*M: Hits       */ TotalBeatmapHits,
-                /*N: Acc        */ Accuracy,
+                /*N: Acc        */ (Accuracy == 0 || Accuracy == 100) ? calculatedAccuracy : Accuracy,
                 /*O: 300c       */ Play300c,
                 /*P: 100c       */ Play100c,
                 /*Q: 50c        */ Play50c,
@@ -789,7 +788,25 @@ namespace Circle_Tracker
             valueRange.Values = new List<IList<object>> { writeData };
             var appendRequest = GoogleSheetsService.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
-            var appendResponse = appendRequest.Execute();
+
+            AppendValuesResponse TryExecuteAppendRequest(SpreadsheetsResource.ValuesResource.AppendRequest appReq, bool rethrowException)
+            {
+                try { return appReq.Execute(); }
+                catch (Exception e)
+                {
+                    if (!rethrowException)
+                        return null;
+                    throw e; // max retry count exceeded; throw exception
+                }
+            }
+            AppendValuesResponse appendResponse = null;
+            int MAX_SUBMIT_ATTEMPTS = 4;
+            for (int i = 0; i < MAX_SUBMIT_ATTEMPTS; i++)
+            {
+                appendResponse = TryExecuteAppendRequest(appendRequest, rethrowException: i == (MAX_SUBMIT_ATTEMPTS - 1));
+                if (appendResponse != null)
+                    break; // success
+            }
 
             // play submit success
             if (SubmitSoundEnabled)
