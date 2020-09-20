@@ -744,7 +744,7 @@ namespace Circle_Tracker
             LastPostTime = DateTime.Now;
 
             // minimum hits to submit
-            if (TotalBeatmapHits < 10) return;
+            if (TotalBeatmapHits < 40) return;
 
             // Calculate accuracy manually (readings of 0% or 100% are usually inaccurate)
             decimal calculatedAccuracy =
