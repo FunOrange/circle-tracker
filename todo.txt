@@ -13,7 +13,7 @@
 --- FEATURES ---
 [] ignore non-std game modes
 [DONE] ignore relax, autopilot
-[] Calculate accuracy manually from 300s, 100s, 50s, misses (accuracy reading sometimes takes a while to update)
+[DONE] Calculate accuracy manually from 300s, 100s, 50s, misses (accuracy reading sometimes takes a while to update)
 [] Store plays in local buffer while internet unavailable
 [] Add collection to spreadsheet
 [DONE] Store "#ERROR! fix" user setting
