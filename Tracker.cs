@@ -69,6 +69,7 @@ namespace Circle_Tracker
         public bool SubmitSoundEnabled { get; set; }
 
         // game variables
+        public bool IsReplay { get; set; } = false;
         public bool MemoryReadError { get; set; } = false;
         public OsuMemoryStatus GameState { get; set; }
         public string Username { get; set; }
@@ -362,7 +363,8 @@ namespace Circle_Tracker
             // read gameplay data
             if (newGameState == OsuMemoryStatus.Playing)
             {
-                // read new game variables
+                // read in new game variables
+                IsReplay = osuReader.IsReplay();
                 PlayContainer playData = new PlayContainer();
                 osuReader.GetPlayData(playData);
 
@@ -736,6 +738,9 @@ namespace Circle_Tracker
                 //Console.WriteLine("PostBeatmapEntryToGoogleSheets: Google Sheets API has not yet been setup.");
                 return;
             }
+
+            if (IsReplay)
+                return;
 
             // duplicate post bug. Fix -> set a 5 second cooldown in between consecutive posts
             var timeSinceLastPost = DateTime.Now.Subtract(LastPostTime);
