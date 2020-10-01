@@ -122,7 +122,7 @@ namespace Circle_Tracker
                     latestRelease = JsonConvert.DeserializeObject<Release>(responseJson);
                 }
             }
-            catch (Exception e)
+            catch
             {
                 MessageBox.Show($"Update check failed. You have version {CURRENT_RELEASE_TAG}. Check for updates here: https://github.com/FunOrange/circle-tracker/releases/latest {Environment.NewLine}e.Message", "Error");
             }

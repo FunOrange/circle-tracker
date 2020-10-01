@@ -458,7 +458,7 @@ namespace Circle_Tracker
             {
                 oppaiData = JObject.Parse(oppaiOutput);
             }
-            catch (Exception e)
+            catch
             {
                 return (0, 0, 0);
             }
@@ -532,7 +532,7 @@ namespace Circle_Tracker
             {
                 RawDataSheet = UserSpreadsheet.Sheets.First((shit) => shit.Properties.Title == SheetName);
             }
-            catch (Exception e)
+            catch
             {
                 if (!silent)
                     MessageBox.Show($"No sheet with the name {SheetName} found.");
@@ -714,7 +714,7 @@ namespace Circle_Tracker
             {
                 PostBeatmapEntryToGoogleSheets(complete);
             }
-            catch (NullReferenceException e)
+            catch (NullReferenceException)
             {
                 // Game variable probably wasn't loaded or read (blame OsuMemoryDataProvider)
                 MessageBox.Show("Could not detect current beatmap. " +

@@ -38,7 +38,7 @@ namespace Circle_Tracker
             {
                 Updater.CheckForUpdates();
             }
-            catch (Exception e)
+            catch
             {
                 // exception we probably don't care about
             }
