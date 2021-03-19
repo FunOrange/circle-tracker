@@ -55,6 +55,7 @@ namespace Circle_Tracker
             SetCredentialsFound(System.IO.File.Exists("credentials.json"));
             updateGameVariablesTimer.Start();
             updateFormTimer.Start();
+            secondsCounterTimer.Start();
         }
 
         public void SetCredentialsFound(bool found)
@@ -233,6 +234,15 @@ namespace Circle_Tracker
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             tracker.SaveSettings();
+        }
+
+        private void secondsCounterTimer_Tick(object sender, EventArgs e) => tracker.TickEverySecond();
+        public void UpdateTime()
+        {
+            timeLabel.Text = 
+                $"Playing: {tracker.PlayingSeconds} " + 
+                $"Idle: {tracker.IdleSeconds} " + 
+                $"Efficiency: {100 * tracker.PlayingSeconds / (float)(tracker.PlayingSeconds + tracker.IdleSeconds), 0}% ";
         }
     }
 }

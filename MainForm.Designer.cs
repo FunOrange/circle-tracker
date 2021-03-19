@@ -77,6 +77,8 @@
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.updateFormTimer = new System.Windows.Forms.Timer(this.components);
+            this.secondsCounterTimer = new System.Windows.Forms.Timer(this.components);
+            this.timeLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -533,12 +535,27 @@
             this.updateFormTimer.Interval = 60;
             this.updateFormTimer.Tick += new System.EventHandler(this.updateFormTimer_Tick);
             // 
+            // secondsCounterTimer
+            // 
+            this.secondsCounterTimer.Interval = 1000;
+            this.secondsCounterTimer.Tick += new System.EventHandler(this.secondsCounterTimer_Tick);
+            // 
+            // timeLabel
+            // 
+            this.timeLabel.AutoSize = true;
+            this.timeLabel.Location = new System.Drawing.Point(9, 314);
+            this.timeLabel.Name = "timeLabel";
+            this.timeLabel.Size = new System.Drawing.Size(122, 13);
+            this.timeLabel.TabIndex = 8;
+            this.timeLabel.Text = "Playing: Idle: Efficiency: ";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(539, 338);
+            this.Controls.Add(this.timeLabel);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.startupCheckBox);
@@ -609,6 +626,8 @@
         private System.Windows.Forms.CheckBox altSepCheckBox;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.TextBox bpmTextBox;
+        private System.Windows.Forms.Timer secondsCounterTimer;
+        private System.Windows.Forms.Label timeLabel;
     }
 }
 

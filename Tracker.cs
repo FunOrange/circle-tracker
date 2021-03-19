@@ -55,6 +55,9 @@ namespace Circle_Tracker
             ("Time (s)", "time_seconds")
         };
 
+        public int IdleSeconds = 0;
+        public int PlayingSeconds = 0;
+
         // Beatmap
         public string SongsFolder { get; set; }
         private Beatmap currentBeatmap;
@@ -250,6 +253,16 @@ namespace Circle_Tracker
             (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
 
             return true;
+        }
+        public void TickEverySecond()
+        {
+            int _;
+            OsuMemoryStatus newGameState = osuReader.GetCurrentStatus(out _);
+            if (newGameState == OsuMemoryStatus.Playing)
+                PlayingSeconds += 1;
+            else
+                IdleSeconds += 1;
+            form.UpdateTime();
         }
         public void Tick()
         {
