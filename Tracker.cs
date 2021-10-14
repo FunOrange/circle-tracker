@@ -244,7 +244,7 @@ namespace Circle_Tracker
             // commit to new beatmap
             BeatmapPath    = beatmapPathTemp;
             currentBeatmap = BeatmapConstructorWrapper(BeatmapPath);
-            BeatmapBpm     = (int)Math.Round(currentBeatmap.Bpm);
+            BeatmapBpm     = (int)System.Math.Round(currentBeatmap.Bpm);
             BeatmapString  = osuReader.GetSongString();
             BeatmapSetID   = (int)osuReader.GetMapSetId();
             BeatmapID      = osuReader.GetMapId();
@@ -539,6 +539,11 @@ namespace Circle_Tracker
                 if (!silent)
                     MessageBox.Show(e.Message, "Google Sheets API Error");
                 SetSheetsApiReady(false);
+                return;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
                 return;
             }
 
