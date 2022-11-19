@@ -101,7 +101,7 @@ namespace Circle_Tracker
 
     class Updater
     {
-        static readonly string CURRENT_RELEASE_TAG = "v14"; // Jun: REMEMBER TO CHANGE THIS every time you make a new release.
+        static readonly string CURRENT_RELEASE_TAG = "v16"; // Jun: REMEMBER TO CHANGE THIS every time you make a new release.
         static HttpClient client; 
         static Updater()
         {
