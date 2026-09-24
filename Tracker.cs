@@ -5,6 +5,7 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Newtonsoft.Json.Linq;
 using OsuMemoryDataProvider;
+using OsuMemoryDataProvider.OsuMemoryModels.Direct;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace Circle_Tracker
 {
     class Tracker
     {
-        private readonly IOsuMemoryReader osuReader;
+        private readonly StructuredOsuMemoryReader osuReader;
         private MainForm form;
 
 
@@ -118,9 +119,9 @@ namespace Circle_Tracker
         {
             form = f;
             LoadSettings();
-            osuReader = OsuMemoryReader.Instance.GetInstanceForWindowTitleHint("");
-            int _;
-            GameState = osuReader.GetCurrentStatus(out _);
+            osuReader = StructuredOsuMemoryReader.Instance;
+            osuReader.TryRead(osuReader.OsuMemoryAddresses.GeneralData);
+            OsuMemoryStatus GameState = (OsuMemoryStatus)(osuReader.OsuMemoryAddresses.GeneralData.OsuStatus);
             soundFilename = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "assets", "sectionpass.wav");
             LastPostTime = DateTime.Now;
 
@@ -186,7 +187,7 @@ namespace Circle_Tracker
             catch (Exception)
             {
                 return false;
-            }            
+            }
             return !(
                 pc.Acc      == 100 &&
                 pc.C300     == 0   &&
@@ -219,7 +220,7 @@ namespace Circle_Tracker
             string beatmapPathTemp = "";
             try
             {
-                beatmapPathTemp = Path.Combine(SongsFolder, osuReader.GetMapFolderName(), osuReader.GetOsuFileName());
+                beatmapPathTemp = Path.Combine(SongsFolder, osuReader.OsuMemoryAddresses.Beatmap.FolderName, osuReader.OsuMemoryAddresses.Beatmap.OsuFileName);
             }
             catch
             {
@@ -245,9 +246,9 @@ namespace Circle_Tracker
             BeatmapPath    = beatmapPathTemp;
             currentBeatmap = BeatmapConstructorWrapper(BeatmapPath);
             BeatmapBpm     = (int)System.Math.Round(currentBeatmap.Bpm);
-            BeatmapString  = osuReader.GetSongString();
-            BeatmapSetID   = (int)osuReader.GetMapSetId();
-            BeatmapID      = osuReader.GetMapId();
+            BeatmapString  = osuReader.OsuMemoryAddresses.Beatmap.MapString;
+            BeatmapSetID   = (int)osuReader.OsuMemoryAddresses.Beatmap.SetId;
+            BeatmapID      = osuReader.OsuMemoryAddresses.Beatmap.Id;
 
             // oppai
             (BeatmapStars, BeatmapAim, BeatmapSpeed) = oppai(BeatmapPath, GetModsString());
@@ -256,8 +257,8 @@ namespace Circle_Tracker
         }
         public void TickEverySecond()
         {
-            int _;
-            OsuMemoryStatus newGameState = osuReader.GetCurrentStatus(out _);
+            osuReader.TryRead(osuReader.OsuMemoryAddresses.GeneralData);
+            OsuMemoryStatus newGameState = (OsuMemoryStatus)(osuReader.OsuMemoryAddresses.GeneralData.OsuStatus);
             if (newGameState == OsuMemoryStatus.Playing)
                 PlayingSeconds += 1;
             else
@@ -266,16 +267,19 @@ namespace Circle_Tracker
         }
         public void Tick()
         {
+            osuReader.TryRead(osuReader.OsuMemoryAddresses.GeneralData);
+            osuReader.TryRead(osuReader.OsuMemoryAddresses.Beatmap);
+            osuReader.TryRead(osuReader.OsuMemoryAddresses.Player);
+
             // update current game state
-            int _;
-            OsuMemoryStatus newGameState = osuReader.GetCurrentStatus(out _);
+            OsuMemoryStatus newGameState = (OsuMemoryStatus)(osuReader.OsuMemoryAddresses.GeneralData.OsuStatus);
             bool songSelectGameState =
                 newGameState == OsuMemoryStatus.SongSelect
                 || newGameState == OsuMemoryStatus.MultiplayerRoom
                 || newGameState == OsuMemoryStatus.MultiplayerSongSelect;
 
             // update current beatmap
-            string beatmapFilename = osuReader.GetOsuFileName();
+            string beatmapFilename = osuReader.OsuMemoryAddresses.Beatmap.OsuFileName;
             if (beatmapFilename != Path.GetFileName(BeatmapPath) && beatmapFilename != "")
             {
                 TrySwitchBeatmap();
@@ -308,7 +312,7 @@ namespace Circle_Tracker
             // update mods
             if (songSelectGameState && currentBeatmap != null)
             {
-                RawMods = osuReader.GetMods();
+                RawMods = osuReader.OsuMemoryAddresses.GeneralData.Mods;
                 if (RawMods != -1) // invalid
                 {
                     //Console.WriteLine(RawMods);
@@ -377,9 +381,21 @@ namespace Circle_Tracker
             if (newGameState == OsuMemoryStatus.Playing)
             {
                 // read in new game variables
-                IsReplay = osuReader.IsReplay();
-                PlayContainer playData = new PlayContainer();
-                osuReader.GetPlayData(playData);
+                IsReplay = osuReader.OsuMemoryAddresses.Player.IsReplay;
+                PlayContainer playData = new PlayContainer
+                {
+                    Acc = osuReader.OsuMemoryAddresses.Player.Accuracy,
+                    C300 = osuReader.OsuMemoryAddresses.Player.Hit300,
+                    C100 = osuReader.OsuMemoryAddresses.Player.Hit100,
+                    C50 = osuReader.OsuMemoryAddresses.Player.Hit50,
+                    CGeki = osuReader.OsuMemoryAddresses.Player.HitGeki,
+                    CKatsu = osuReader.OsuMemoryAddresses.Player.HitKatu,
+                    CMiss = osuReader.OsuMemoryAddresses.Player.HitMiss,
+                    Combo = osuReader.OsuMemoryAddresses.Player.Combo,
+                    MaxCombo = osuReader.OsuMemoryAddresses.Player.MaxCombo,
+                    Hp = osuReader.OsuMemoryAddresses.Player.HP,
+                    Score = osuReader.OsuMemoryAddresses.Player.Score
+                };
 
                 if (PlayDataValid(playData))
                 {
@@ -389,7 +405,7 @@ namespace Circle_Tracker
                     int new50c = playData.C50;
                     int newMissc = playData.CMiss;
                     int newHits = playData.C300 + playData.C100 + playData.C50;
-                    int newSongTime = osuReader.ReadPlayTime();
+                    int newSongTime = osuReader.OsuMemoryAddresses.GeneralData.AudioTime;
 
                     // update hits
                     if (newMissc > PlayMissc)
@@ -571,7 +587,7 @@ namespace Circle_Tracker
                 if (!silent)
                 {
                     MessageBox.Show(e.Message, "Google Sheets API Error");
-                    
+
                     if (e.Message.Contains("Unable to parse range"))
                         MessageBox.Show("Try checking if you entered the correct thing for sheet name. Sheet name refers to the name of a 'tab' in the spreadsheet, not the name of the entire spreadsheet");
                     if (e.Message.Contains("Requested entity was not found"))

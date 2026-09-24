@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <AssemblyName>FsBeatmapProcessor</AssemblyName>
   </PropertyGroup>
 
